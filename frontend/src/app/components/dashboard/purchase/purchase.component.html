@@ -1,0 +1,178 @@
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+        <!-- <mat-option value="quotation_code">
+          {{ "quotation.header.quotation_code" | translate }}
+        </mat-option> -->
+        <mat-option value="quotation_code">เลขที่รายการ</mat-option>
+        <mat-option value="seller_name">ชื่อผู้ขาย</mat-option>
+        <!-- <mat-option value="customer_name">{{
+          "customer.header.customer_name" | translate
+        }}</mat-option> -->
+      </mat-select>
+      <input [(ngModel)]="searchtext" #titleen placeholder="" />
+      <a onclick="javascript:void(0)" (click)="onSearchClick((init = false))">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+    </div>
+  </div>
+  <p class="action">
+    <a href="javascript:void(0)" (click)="openModal(modalSellerSelect)">
+      เพิ่มใบสั่งซื้อ
+    </a>
+    <a
+      routerLink="/{{ routepath.purchase }}/new"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span>เลือกจากรายการขาย</span>
+    </a>
+  </p>
+</div>
+
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table custom-01">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="quotation_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.list" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="quotation_code"
+        ><a
+          routerLink="/{{ routepath.purchase }}/{{ element._id }}/view"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a></mat-cell
+      >
+    </ng-container>
+
+    <ng-container matColumnDef="seller_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.seller_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="seller_name">{{
+        element.seller_name
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="dealer">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.dealer" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="dealer">{{
+        element.seller_dealer
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.created" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.status" | translate
+      }}</mat-header-cell>
+      <mat-cell
+        [ngClass]="{
+          ready: element.status === postatus.approved,
+          prcessing:
+            element.status === postatus.waiting_product ||
+            element.status === postatus.waiting_approval,
+          cancelled:
+            element.status === postatus.cancel ||
+            element.status === postatus.rejected
+        }"
+        *matCellDef="let element"
+        data-label="status"
+        >{{ element.status
+        }}<span class="icon" style="mix-blend-mode: multiply">
+          <img
+            [src]="
+              element.status === postatus.approved
+                ? 'assets/img/icon/alert.gif'
+                : element.status === postatus.waiting_product
+                ? 'assets/img/icon/crane.gif'
+                : ''
+            "
+            width="30px"
+            alt=""
+          /> </span
+      ></mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+
+<ng-template #modalSellerSelect>
+  <div class="modal-body editor-modal text-center">
+    <div>
+      <form class="cmn-form">
+        <div class="common-field">
+          <h6>เลือกผู้ขายเพื่อสร้างใบสั่งซื้อ</h6>
+          <mat-select
+            [(ngModel)]="sellerSelected"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="-- เลือกผู้ขาย --"
+          >
+            <mat-option
+              *ngFor="let seller of sellerDataSource"
+              [value]="seller"
+              >{{ seller.seller_name }}</mat-option
+            >
+          </mat-select>
+        </div>
+      </form>
+
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+      >
+        {{ "button.save" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>

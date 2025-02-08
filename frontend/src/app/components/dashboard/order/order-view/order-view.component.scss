@@ -1,0 +1,325 @@
+$pm-color: #001654;
+$pm-font-color: #333;
+$scd-font-color: #333;
+$prcessing: #b6009e;
+$ready: #00b61e;
+$cancelled: #ff3300;
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .order-block {
+    position: relative;
+    background-color: #efefef;
+    border-radius: 8px;
+    flex: 1;
+    margin-right: 10px;
+    padding: 10px 20px;
+    display: flex;
+
+    .dtl-bullet {
+      display: flex;
+
+      .ttl {
+        width: 100px;
+        text-align: right;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+    }
+
+    .ref-tags {
+      .tag {
+        display: flex;
+        flex-direction: column;
+        margin-right: 10px;
+        width: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        .type {
+          background-color: #333;
+          color: #fff;
+          font-size: 0.8rem;
+          font-weight: bold;
+          text-align: center;
+        }
+        .status {
+          background-color: #fff7ee;
+          padding: 0 5px;
+          text-align: center;
+          font-size: 0.8rem;
+        }
+        &:hover {
+          text-decoration: none;
+          opacity: 0.8;
+        }
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    &.weight {
+      flex: 0 1 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: bold;
+
+      .ttl {
+        font-weight: bold;
+
+        &.float {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+        }
+      }
+    }
+  }
+
+  .order-status {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .status {
+      border-radius: 16px;
+      background-color: #333;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
+      flex: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      &.prcessing {
+        background-color: $prcessing;
+      }
+      &.ready {
+        background-color: $ready;
+      }
+      &.cancelled {
+        background-color: $cancelled;
+      }
+    }
+
+    .action {
+      flex: 2;
+      border: none;
+      border-radius: 16px;
+      background-color: #0059ff;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.4rem;
+    }
+  }
+}
+
+.note-block {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+
+  & > div {
+    position: relative;
+    background-color: #efefef;
+    border-radius: 8px;
+    flex: 1;
+    margin-right: 10px;
+    padding: 10px 20px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    .details-action {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+
+      a {
+        color: $pm-color;
+        font-weight: bold;
+        margin-right: 5px;
+      }
+    }
+
+    &.attach {
+      .upload {
+        color: $pm-color;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .ql-editor {
+    height: 100px;
+  }
+}
+
+.pdf-section-order {
+  position: absolute;
+  top: 0;
+  left: -101%;
+  .page {
+    display: flex;
+    flex-direction: column;
+  }
+  .half-box {
+    border: 5px solid #000;
+    margin: 10px 0;
+    flex: 1;
+    overflow: hidden;
+    .header {
+      border-bottom: 3px solid #000;
+      display: flex;
+      align-items: center;
+      .main {
+        width: 100%;
+        padding: 10px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        line-height: 1.1;
+      }
+      .sub {
+        width: 180px;
+        border-left: 3px solid #000;
+        p {
+          text-align: center;
+          font-weight: bold;
+        }
+        .date {
+          font-size: 0.8rem;
+        }
+        .quotation_code {
+          color: $pm-color;
+          letter-spacing: 2px;
+          font-family: "Kanit", sans-serif;
+          font-size: 1.2rem;
+          line-height: 1.1;
+        }
+        .factory {
+          color: #f00;
+          background-color: #ffc700;
+        }
+      }
+    }
+    .tr,
+    .td {
+      display: flex;
+      & > span {
+        flex: 1;
+        text-align: center;
+        padding: 3px 10px;
+        border-right: 2px solid #000;
+        font-weight: bold;
+        font-size: 1.1rem;
+        &.size {
+          flex: 6;
+          text-align-last: left;
+          letter-spacing: 1px;
+        }
+        &:last-child {
+          border-right: 0;
+        }
+      }
+    }
+    .tr {
+      border-bottom: 3px solid #000;
+      & > span {
+      }
+    }
+    .remark {
+      border-top: 3px solid #000;
+      font-weight: bold;
+      padding: 10px;
+      color: #f00;
+      font-size: 1.3rem;
+      line-height: 1.1;
+      height: 68px;
+    }
+  }
+}
+
+:host ::ng-deep .ql-container.ql-snow {
+  border: none;
+  background-color: #fff;
+  border-radius: 8px;
+
+  &.ql-disabled {
+    background: none !important;
+  }
+}
+
+:host ::ng-deep .view-quill {
+  .ql-container.ngx-quill-view-html {
+    height: auto !important;
+    background-color: unset;
+  }
+
+  .ql-editor {
+    padding: 0px !important;
+  }
+}
+
+:host ::ng-deep .ql-toolbar {
+  display: none;
+}
+
+.display-none {
+  display: none;
+}
+.pages {
+  width: 21cm;
+}
+.page {
+  width: 21cm;
+  height: 29.7cm;
+  padding: 30px;
+}
+
+@media (max-width: 1024px) {
+  .pdf-section-order {
+    position: absolute;
+    top: 0;
+    left: -1000%;
+  }
+  .order-details {
+    flex-direction: column-reverse;
+    .order-block {
+      margin-right: 0;
+      margin-top: 10px;
+    }
+    .order-status {
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-between;
+      .status {
+        margin-bottom: 0;
+        margin-right: 10px;
+        font-size: 1rem;
+        padding: 10px 0;
+      }
+      .action {
+        font-size: 1rem;
+        padding: 10px 0;
+      }
+    }
+  }
+  .note-block {
+    flex-direction: column;
+    & > div {
+      margin-right: 0 !important;
+      margin-bottom: 10px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

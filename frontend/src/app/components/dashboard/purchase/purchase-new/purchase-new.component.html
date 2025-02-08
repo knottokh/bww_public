@@ -1,0 +1,192 @@
+<p class="cmn-breadcrumb">
+  <a
+    (click)="onBackto()"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  /
+  <span *ngIf="dataSource === undefined"
+    >({{ currentCustomerData.customer_code }})
+    {{ currentCustomerData.customer_name }}</span
+  >
+  <span *ngIf="dataSource !== undefined"
+    >{{ dataSource.quotation_code }} ({{ currentCustomerData.customer_name }}) -
+    {{ moment(dataSource.created).format("DD/MM/YYYY hh:mm") }}
+    น.</span
+  >
+</p>
+
+<div class="inner">
+  <div class="combo-table">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <input
+              type="checkbox"
+              [(ngModel)]="is_select_all"
+              [ngModelOptions]="{ standalone: true }"
+              (change)="selectAll()"
+            />
+          </th>
+          <th>รายการ</th>
+          <th>จำนวน</th>
+          <th>หน่วย</th>
+          <th>อ้างอิง</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let quotationDetail of dataSource; let i = index">
+          <tr class="primary">
+            <td>
+              <input
+                type="checkbox"
+                [(ngModel)]="quotationDetail.selected"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </td>
+            <td>
+              {{ quotationDetail.title }}
+            </td>
+            <td>
+              {{ quotationDetail.quantity }}
+            </td>
+            <td>{{ quotationDetail.unit }}</td>
+            <td>{{ quotationDetail.quotation_code }}</td>
+            <td>
+              <button
+                class="remove-btn"
+                (click)="
+                  setDeleteStockSelected(quotationDetail);
+                  openModal(modalConfirmDelete)
+                "
+              >
+                <img src="assets/img/icon/remove.png" alt="" srcset="" />
+              </button>
+            </td>
+          </tr>
+
+          <!-- <tr class="add" *ngIf="quotationDetail.stock_type === 'สั่งผลิต'">
+            <td [colSpan]="8">
+              <div class="cmn-btn">
+                <button
+                  class="secondary"
+                  style="width: 100%"
+                  (click)="addProduct(quotationDetail)"
+                >
+                  + เพิ่มขนาด
+                </button>
+              </div>
+            </td>
+          </tr> -->
+        </ng-container>
+        <!-- <tr class="add">
+          <td [colSpan]="8">
+            <div class="cmn-btn">
+              <button
+                class="secondary"
+                style="width: 100%"
+                (click)="addStock()"
+              >
+                + เพิ่มรายการ
+              </button>
+            </div>
+          </td>
+        </tr> -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cmn-btn">
+    <button id="cancel" mat-raised-button color="primary" (click)="onBackto()">
+      {{ "button.cancel" | translate }}
+    </button>
+    <button
+      class="primary"
+      mat-raised-button
+      color="primary"
+      (click)="openModal(modalSellerSelect)"
+      disabled="{{ loading }}"
+    >
+      {{ "button.save" | translate }}
+    </button>
+  </div>
+</div>
+
+<ng-template #modalSellerSelect>
+  <div class="modal-body editor-modal text-center">
+    <div>
+      <form class="cmn-form">
+        <div class="common-field">
+          <h6>เลือกผู้ขายเพื่อสร้างใบสั่งซื้อ</h6>
+          <mat-select
+            [(ngModel)]="sellerSelected"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="-- เลือกผู้ขาย --"
+          >
+            <mat-option
+              *ngFor="let seller of sellerDataSource"
+              [value]="seller"
+              >{{ seller.seller_name }}</mat-option
+            >
+          </mat-select>
+        </div>
+      </form>
+
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+      >
+        {{ "button.save" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDelete>
+  <div class="modal-body editor-modal text-center">
+    <div>
+      <form class="cmn-form">
+        <div class="common-field">
+          <h6>คุณต้องการจะลบข้อมูล</h6>
+          <h6>รายการ: {{ deleteStockSelected.title }}</h6>
+          <h6>จำนวน: {{ deleteStockSelected.quantity }}</h6>
+          <h6>หน่วย: {{ deleteStockSelected.unit }}</h6>
+          <h6>อ้างอิง: {{ deleteStockSelected.quotation_code }}</h6>
+          <h6>ใช่หรือไม่?</h6>
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        mat-raised-button
+        color="danger"
+        (click)="onDeleteStockSelected()"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>

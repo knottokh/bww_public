@@ -1,0 +1,287 @@
+<!-- <app-nav-web-management></app-nav-web-management> -->
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.customer }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>ลูกค้า</span>
+  </a>
+  / <span>ข้อมูลลูกค้า</span>
+</p>
+<div class="inner-wrap">
+  <div *ngIf="firstload" class="firstloading">
+    <svg width="50px" height="50px" viewbox="0 0 50 50">
+      <path
+        d="M36.708,25c0-6.466-5.241-11.708-11.708-11.708c-6.466,0-11.709,5.243-11.709,11.708l0,0v0c0,1.11,0.901,2.012,2.012,2.012  S17.315,26.11,17.315,25c0-0.055-0.012-0.107-0.016-0.161c0.086-4.176,3.504-7.548,7.701-7.548c4.195,0,7.613,3.372,7.7,7.547  c-0.005,0.054-0.017,0.106-0.017,0.162c0,1.11,0.9,2.012,2.012,2.012S36.708,26.11,36.708,25L36.708,25L36.708,25z"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 25 25"
+          to="360 25 25"
+          dur="0.5s"
+          begin="0s"
+          repeatCount="indefinite"
+        />
+      </path>
+      <path
+        d="M43.407,25c0-10.166-8.24-18.407-18.407-18.407C14.834,6.592,6.593,14.834,6.592,25l0,0v0c0,1.11,0.901,2.012,2.012,2.012  S10.617,26.11,10.617,25c0-0.055-0.012-0.107-0.016-0.161C10.688,16.969,17.11,10.592,25,10.592c7.89,0,14.312,6.377,14.399,14.246  c-0.005,0.054-0.017,0.106-0.017,0.162c0,1.11,0.9,2.012,2.012,2.012S43.407,26.11,43.407,25L43.407,25L43.407,25z"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 25 25"
+          to="360 25 25"
+          dur="1.7s"
+          begin="0.1s"
+          repeatCount="indefinite"
+        />
+      </path>
+      <path
+        d="M50,25C50,11.193,38.807,0,25,0C11.318,0,0.21,10.992,0.009,24.625C-0.014,24.747-0.028,24.872-0.028,25  c0,1.11,0.901,2.012,2.012,2.012S3.996,26.11,3.996,25v0H4C4,13.42,13.42,4,25,4c11.524,0,20.904,9.334,20.992,20.838  c-0.005,0.054-0.017,0.106-0.017,0.162c0,1.11,0.9,2.012,2.012,2.012S50,26.11,50,25L50,25L50,25z"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 25 25"
+          to="360 25 25"
+          dur="3s"
+          begin="0.2s"
+          repeatCount="indefinite"
+        />
+      </path>
+    </svg>
+  </div>
+  <div class="editor-panel">
+    <form #form="ngForm" [formGroup]="dataForm" class="cmn-form">
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.customer_code" | translate }} *</span
+        >
+        <input formControlName="customer_code" #customer_code placeholder="" />
+        <!-- <span *ngIf="( f['customer_code'].value == null || f['customer_code'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.customer_name" | translate }} *</span
+        >
+        <input formControlName="customer_name" #customer_name placeholder="" />
+        <!-- <span *ngIf="( f['customer_name'].value == null || f['customer_name'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.dealer" | translate }}</span>
+        <input formControlName="dealer" #dealer placeholder="" />
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.phone" | translate }} *</span
+        >
+        <input formControlName="phone" #phone placeholder="" />
+        <!-- <span *ngIf="( f['phone'].value == null || f['phone'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.email" | translate }}</span>
+        <input formControlName="email" #email placeholder="" />
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.line" | translate }}</span>
+        <input formControlName="line" #line placeholder="" />
+      </p>
+
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.customer_type" | translate }} *</span
+        >
+        <mat-select formControlName="customer_type" placeholder="-- Select --">
+          <mat-option value="VAT">VAT</mat-option>
+          <mat-option value="NO VAT">NO VAT</mat-option>
+        </mat-select>
+        <!-- <span *ngIf="( f['customer_type'].value == null || f['customer_type'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.payment_type" | translate }} *</span
+        >
+        <mat-select formControlName="payment_type" placeholder="-- Select --">
+          <mat-option
+            *ngFor="let item of payment_type_datas"
+            [value]="item.title"
+          >
+            {{ item.title }}
+          </mat-option>
+        </mat-select>
+        <!-- <span *ngIf="( f['payment_type'].value == null || f['payment_type'].value == '')">
+          Required
+        </span> -->
+      </p>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.payment_remark" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="payment_remark"
+            #payment_remark
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <p class="common-field ttl">
+        <span class="ttl-name">{{
+          "customer.header.shipping_type" | translate
+        }}</span>
+        <mat-select formControlName="shipping_type" placeholder="-- Select --">
+          <mat-option
+            *ngFor="let item of shipping_type_datas"
+            [value]="item.title"
+          >
+            {{ item.title }}
+          </mat-option>
+        </mat-select>
+        <span
+          *ngIf="
+            f['shipping_type'].value == null || f['shipping_type'].value == ''
+          "
+        >
+        </span>
+      </p>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.shipping_detail" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="shipping_detail"
+            #shipping_detail
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.tax_address" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="tax_address"
+            #tax_address
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.tax_id" | translate }}</span>
+        <input formControlName="tax_id" #tax_id placeholder="" />
+      </p>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">โน๊ต</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="note"
+            #note
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name"
+            >หมายเหตุ (สำหรับแสดงบนใบเสนอราคาเพิ่มเติม)</span
+          >
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="remark"
+            #remark
+          >
+          </quill-editor>
+        </div>
+      </div>
+    </form>
+    <p class="cmn-btn">
+      <button
+        id="cancel"
+        type="button"
+        (click)="onBackto()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="primary"
+        type="submit"
+        (click)="openModal(modalConfirmSave)"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+    </p>
+    <div *ngIf="error" class="alert alert-danger">
+      {{ "api." + error | translate }}
+    </div>
+    <div *ngIf="msgok" class="alert alert-success">
+      {{ "api." + msgok | translate }}
+    </div>
+  </div>
+</div>
+
+<ng-template #modalConfirmSave>
+  <div class="modal-body">
+    <div *ngIf="!loading">
+      <p class="img">
+        <img src="assets/img/icon/rubber-ring.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">บันทึก</h5>
+      <p class="desc">กรุณายืนยันครั้งสุดท้ายเพื่อบันทึกข้อมูล</p>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSubmit()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.confirm-publish" | translate }}
+      </button>
+    </div>
+    <div class="spiner-box" *ngIf="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,12 @@
+<div *ngFor="let item of collection | paginate: {
+  itemsPerPage: perPage,
+  currentPage: currentPage,
+  totalItems: totalItems
+}">
+</div>
+<pagination-controls [maxSize]="maxSize" [directionLinks]="directionLinks" [autoHide]="autoHide"
+  [responsive]="responsive" [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+  [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
+  [screenReaderPageLabel]="labels.screenReaderPageLabel" [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel"
+  (pageChange)="pageChange($event)">
+</pagination-controls>

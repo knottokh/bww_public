@@ -1,0 +1,131 @@
+<p class="cmn-breadcrumb">
+  <span
+    >{{ currentQuotationData.quotation_code }} ({{
+      currentCustomerData.customer_name
+    }}) - {{ currentQuotationData.status }}
+  </span>
+</p>
+<!-- <div class="order-details">
+  <div class="order-block">
+    <p class="dtl-bullet">
+      <span class="ttl">ประเภทลูกค้า</span
+      >{{ currentCustomerData.customer_type }} /
+      {{ currentCustomerData.payment_type }}
+    </p>
+    <p class="dtl-bullet">
+      <span class="ttl">N:</span>
+      <quill-view-html
+        class="view-quill"
+        [content]="currentCustomerData.payment_remark || ''"
+        theme="snow"
+      ></quill-view-html>
+    </p>
+    <p class="dtl-bullet">
+      <span class="ttl">การจัดส่ง</span>{{ currentCustomerData.shipping_type }}
+    </p>
+    <p class="dtl-bullet">
+      <span class="ttl">N:</span>
+      <quill-view-html
+        class="view-quill"
+        [content]="currentCustomerData.shipping_detail || ''"
+        theme="snow"
+      ></quill-view-html>
+    </p>
+    <p class="dtl-bullet">
+      <span class="ttl">ติดต่อ</span>
+      {{ currentCustomerData.dealer + " /" }}
+      {{ currentCustomerData.phone + " /" }}
+      {{ currentCustomerData.email + " /" }}
+      {{ currentCustomerData.line }}
+    </p>
+  </div>
+  <div class="order-block weight">
+    <span class="ttl float">น้ำหนัก (กก.)</span>{{ calWeight() }}
+  </div>
+  <div class="order-status">
+    <p class="status">{{ currentQuotationData.status }}</p>
+  </div>
+</div> -->
+
+<div class="inner">
+  <!-- <a *ngIf="!isedit_stock" (click)="onEdit('stock')">แก้ไข</a>
+  <a *ngIf="isedit_stock">บันทึก</a>
+  <a *ngIf="isedit_stock" (click)="onCancel('stock')">ยกเลิก </a> -->
+  <table class="combo-table">
+    <thead>
+      <tr>
+        <!-- <th class="center">#</th> -->
+        <th>รายการ / ขนาด</th>
+        <th class="center">จำนวน</th>
+        <th class="w150">หน่วย</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let q of currentQuotationData.stocks || []; let i = index">
+      <tr class="primary">
+        <!-- <td class="center">{{ i + 1 }}</td> -->
+        <td>{{ q.title }}</td>
+        <td class="center">
+          {{ q.stock_type == "สั่งผลิต(1D)" ? q.quantity : "" }}
+        </td>
+        <td class="w150">{{ q.product_unit }}</td>
+      </tr>
+      <tr class="sub" *ngFor="let product of filterProduct(q._id)">
+        <!-- <td class="center"></td> -->
+        <td>
+          <div class="align">
+            <span class="w50 center">ขนาด</span>
+            <span class="w100 right">{{ product.width }}</span>
+            <span class="w50 center">x</span>
+            <span class="w100 right">{{ product.height }}</span>
+            <span class="w50 center">{{ q.product_unit }}</span>
+          </div>
+        </td>
+        <td class="center">{{ product.quantity }}</td>
+        <td class="w150">{{ product.unit }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Footer -->
+<!-- <div class="note-block">
+  <div>
+    <p>เอกสารอ้างอิง</p>
+    <quill-view-html
+      class="view-quill"
+      [content]="currentQuotationData.document_reference || ''"
+      theme="snow"
+    >
+    </quill-view-html>
+  </div>
+  <div class="attach">
+    <p>รูปประกอบ/แบบ</p>
+    <mat-table [dataSource]="dataSourceAttach" class="table">
+      <ng-container matColumnDef="document_name">
+        <mat-header-cell *matHeaderCellDef>ชื่อเอกสาร</mat-header-cell>
+        <mat-cell *matCellDef="let element" data-label="document_name">
+          <a
+            href="javascript:void(0)"
+            *ngIf="element.document"
+            (click)="onClickNewTab(getFileUrl(element.document!.filename))"
+          >
+            {{ element.document_name }}
+          </a>
+        </mat-cell>
+      </ng-container>
+      <mat-row
+        mat-row
+        *matRowDef="let row; let element; columns: displayedAttachColumns"
+      ></mat-row>
+    </mat-table>
+  </div>
+  <div>
+    <p>หมายเหตุ</p>
+    <quill-view-html
+      class="view-quill"
+      [content]="currentQuotationData.remark || ''"
+      theme="snow"
+    >
+    </quill-view-html>
+  </div>
+</div> -->

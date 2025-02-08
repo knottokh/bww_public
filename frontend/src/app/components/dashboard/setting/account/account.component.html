@@ -1,0 +1,277 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.setting }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  / <span>{{ "setting.account" | translate }}</span>
+</p>
+<div class="action-panel">
+  <!-- <p class="ttl">Filter</p>
+<div class="filter">
+   <mat-radio-group [(ngModel)]="groupfilter" (change)="doFilter()">
+     <mat-radio-button value="">All</mat-radio-button>
+     <mat-radio-button *ngFor="let group of groups" [value]="group">{{ group }}</mat-radio-button>
+   </mat-radio-group>
+ </div> -->
+  <div class="ttl">จำนวน {{ dataSourceCount }} รายการ</div>
+  <p class="add">
+    <a href="javascript:void(0)" (click)="openModal(modalManageCategory)">
+      เพิ่ม
+    </a>
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="username">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.username" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="username">{{
+        element.username
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="fullname">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.fullname" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="fullname">{{
+        element.fullname
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="display_role">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.display_role" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="display_role">{{
+        element.display_role
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.email" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="email">{{
+        element.email
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="role">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.role" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="role">{{
+        element.role
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <button
+          type="button"
+          (click)="onEdit(modalManageCategory, element)"
+          mat-raised-button
+          color="warning"
+        >
+          {{ "button.edit" | translate }}
+        </button>
+        <button
+          *ngIf="currentUser.id != element._id"
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalManageCategory>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataForm" class="cmn-form">
+        <div class="common-field">
+          <h6>ชื่อผู้ใช้งาน</h6>
+          <input
+            matInput
+            formControlName="username"
+            #username
+            [placeholder]="'setting.header.username' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>Display name</h6>
+          <input
+            matInput
+            formControlName="fullname"
+            #fullname
+            [placeholder]="'setting.header.fullname' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>Email</h6>
+          <input
+            matInput
+            formControlName="email"
+            #email
+            [placeholder]="'setting.header.email' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>Display role</h6>
+          <input
+            matInput
+            formControlName="display_role"
+            #display_role
+            [placeholder]="'setting.header.display_role' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>รหัสผ่าน</h6>
+          <mat-pass-toggle-visibility
+            #togglepw
+            matSuffix
+          ></mat-pass-toggle-visibility>
+          <input
+            matInput
+            [type]="togglepw.type"
+            formControlName="password"
+            #password
+            [placeholder]="'setting.header.password' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>ยืนยันรหัสผ่าน</h6>
+          <mat-pass-toggle-visibility
+            #togglecpw
+            matSuffix
+          ></mat-pass-toggle-visibility>
+          <input
+            matInput
+            [type]="togglecpw.type"
+            formControlName="confirmPassword"
+            #confirmPassword
+            [placeholder]="'setting.header.confirmPassword' | translate"
+          />
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>

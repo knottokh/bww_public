@@ -1,0 +1,251 @@
+{
+  "menu": {
+    "customer": "ลูกค้า",
+    "quotation": "ใบเสนอราคา",
+    "order": "ใบสั่งผลิต",
+    "report": "รีพอร์ต",
+    "setting": "ตั้งค่า",
+    "logout": "ออกจากระบบ"
+  },
+  "title": {
+    "application-name": "BWW",
+    "home": "Home",
+    "forget-password": "Forget Password ?",
+    "webmanagement": "Web Management",
+    "staticpages": "Static Pages",
+    "academy": "Institution",
+    "category": "Manage Category"
+  },
+  "desc": {
+    "forget-password": "please give us your Username and Email for sending the reset password link"
+  },
+  "regetpass": {
+    "title": "Change Password",
+    "discription": "The password must have at least 8 characters with at least one upper case letter and at least one number",
+    "button-submit": "Change password",
+    "password": "password",
+    "confirmPassword": "confirm password",
+    "ruleinfo": {
+      "lowerCaseCriteriaMsg": "contains at least one lower character",
+      "upperCaseCriteriaMsg": "contains at least one upper character",
+      "minCharsCriteriaMsg": "contains at least {{value}} characters"
+    },
+    "error": {
+      "require-passowrd": "Password required",
+      "match-confirmPassword": "Password not match"
+    }
+  },
+  "complete": {
+    "forgetpassword": {
+      "mail-send": "We just sent a reset password link to your e-mail If you don't receive please contact GoUni +66(0)21634620, +66(0)933230500"
+    },
+    "resetpassword": {
+      "mail-send": "Your password has been successful reset, you can now login with your new password."
+    }
+  },
+  "field": {
+    "username": "Username",
+    "password": "Password",
+    "email": "E-mail"
+  },
+  "language": {
+    "en": "EN",
+    "th": "TH",
+    "cn": "CN"
+  },
+  "customer": {
+    "back": "ย้อนกลับ",
+    "alldone": "All done.",
+    "header": {
+      "customer_code": "รหัสลูกค้า",
+      "customer_name": "ชื่อบริษัท/ลูกค้า",
+      "dealer": "ผู้ติดต่อ",
+      "phone": "เบอร์ติดต่อ",
+      "email": "อีเมล์",
+      "line": "@LINE",
+      "customer_type": "ประเภทลูกค้า",
+      "payment_type": "การชำระเงิน",
+      "payment_remark": "หมายเหตุการชำระเงิน",
+      "shipping_type": "การจัดส่ง",
+      "shipping": "การจัดส่งสินค้า",
+      "shipping_detail": "รายละเอียดการจัดส่ง",
+      "shipping_detail_new": "ที่อยู่จัดส่ง (กรณีมีการจัดส่ง)",
+      "tax_address": "ที่อยู่ตามใบกำกับภาษี",
+      "tax_id": "เลขประจำตัวผู้เสียภาษี",
+      "note": "โน๊ต",
+      "note_new": "ข้อความ",
+      "remark": "หมายเหตุ",
+      "onprogress_order": "On progress order(s)",
+      "input_date": "กรอกข้อมูลวันที่",
+      "message": "ข้อความ",
+      "created_date": "สร้างวันที่",
+      "document_name": "ชื่อเอกสาร",
+      "register_date": "กรอกข้อมูลวันที่"
+    }
+  },
+  "setting": {
+    "payment": "การชำระเงิน",
+    "shipping": "การจัดส่ง",
+    "stock": "รายการสินค้า",
+    "product": "การสั่งผลิต",
+    "seller": "ผู้ขาย",
+    "account": "บัญชีผู้ใช้งาน",
+    "back": "ย้อนกลับ",
+    "alldone": "All done.",
+    "header": {
+      "list": "รายการ",
+      "stock_code": "รหัสสินค้า",
+      "stock_title": "ชื่อสินค้า",
+      "stock_type": "ประเภท",
+      "price": "ราคาพื้นฐาน",
+      "unit": "หน่วย",
+      "username": "Username",
+      "password": "Password",
+      "display_role": "Display role",
+      "confirmPassword": "Confirm password",
+      "role": "Role",
+      "fullname": "Display name",
+      "email": "Email",
+      "product_code": "รหัสการผลิต",
+      "product_unit": "หน่วยผลิต",
+      "product_weight": "น้ำหนัก",
+      "seller_name": "ชื่อผู้ขาย",
+      "dealer": "ผู้ติดต่อ",
+      "phone": "เบอร์ติดต่อ",
+      "line": "@LINE",
+      "seller_type": "ประเภทผู้ขาย",
+      "payment_type": "การชำระเงิน",
+      "payment_remark": "หมายเหตุการชำระเงิน"
+    }
+  },
+  "quotation": {
+    "header": {
+      "quotation_code": "เลขที่รายการ",
+      "list": "รายการ",
+      "customer_code": "รหัสลูกค้า",
+      "customer_name": "ชื่อลูกค้า",
+      "created": "สร้างวันที่",
+      "status": "สถานะ",
+      "product_code": "รหัสสินค้า",
+      "remark": "หมายเหตุ"
+    },
+    "detail-header": {
+      "title": "รายการ/ขนาด",
+      "quantity": "จำนวน",
+      "unit": "หน่วย",
+      "price": "ราคา (บาท)",
+      "total_price": "ราคารวม (บาท)"
+    }
+  },
+  "report": {
+    "header": {
+      "created": "วันที่",
+      "approved": "วันที่อนุมัติ",
+      "quotation_code": "เลขที่ใบเสนอราคา",
+      "customer_code": "รหัสลูกค้า",
+      "customer_name": "ชื่อลูกค้า",
+      "product_code": "รหัสสินค้า",
+      "total_quantity": "จำนวนสินค้า",
+      "createdby": "พนักงานขาย",
+      "total_price": "ยอดรวม(ไม่รวม vat)",
+      "status": "สถานะ",
+      "quotation_total_price": "ยอดรวมใบเสนอราคาที่อนุมัติ(ไม่รวม vat)",
+      "quotation_total_quantity": "จำนวนใบเสนอราคาที่อนุมัติ"
+    },
+    "detail-header": {
+      "title": "รายการ/ขนาด",
+      "quantity": "จำนวน",
+      "unit": "หน่วย",
+      "price": "ราคา (บาท)",
+      "total_price": "ราคารวม (บาท)"
+    },
+    "filter": {
+      "sale_customer_name": "ยอดขายแยกตามชื่อลูกค้า",
+      "sale_product_name": "ยอดขายแยกตามชื่อสินค้า",
+      "sale_date": "ยอดขายแยกตามวันที่"
+    }
+  },
+  "button": {
+    "login": "Login",
+    "send": "Send",
+    "back": "Back",
+    "confirm": "Confirm",
+    "forget-password": "Forgot Password ?",
+    "createnew": "Create",
+    "addimage": "Add Image",
+    "deletebulk": "Delete Bulk",
+    "addvideo": "Add Video",
+    "add-customer": "เพิ่มลูกค้า",
+    "cancel": "ยกเลิก",
+    "close": "ปิด",
+    "save": "บันทึก",
+    "view": "View",
+    "edit": "แก้ไข",
+    "delete": "ลบรายการ",
+    "delete-tip": "Delete this blog!",
+    "confirm-publish": "บันทึก",
+    "leave-without-saveing": "Leave without saving",
+    "save-publish": "Save & Publish",
+    "import-data": "Import data",
+    "add-more-question": "Add more question",
+    "viewslip": "View Slip",
+    "approve": "Approve",
+    "reset": "Reset",
+    "check": "Check",
+    "done": "Done!",
+    "notyet": "Not yet",
+    "sendemail": "Send mail",
+    "download": "ดาวน์โหลด",
+    "approve-request": "ขออนุมัติ",
+    "approve-request-agian": "ขออนุมัติใหม่",
+    "cancel-approve-request": "ยกเลิกการขออนุมัติ",
+    "approve-quotation": "อนุมัติ",
+    "reject-quotation": "ไม่อนุมัติ",
+    "preview-quotation": "Preview ใบเสนอราคา",
+    "print-quotation": "พิมพ์ใบเสนอราคา",
+    "edit-customer": "แก้ไขข้อมูลลูกค้า",
+    "add-quotation": "เพิ่มรายการ",
+    "edit-quotation": "แก้ไขรายการ",
+    "delete-quotation": "ลบเอกสาร",
+    "duplicate-quotation": "คัดลอกใบเสนอราคา",
+    "cancel-quotation": "ยกเลิกเอกสาร",
+    "attach-picture-design": "แนบรูปประกอบ/แบบ",
+    "edit-purchase": "แก้ไขรายการ",
+    "duplicate-purchase": "คัดลอกใบสั่งซื้อ",
+    "edit-dealer": "แก้ไขข้อมูลผู้ขาย",
+    "delete-purchase": "ลบ",
+    "cancel-purchase": "ยกเลิก",
+    "get-purchase": "รับของแล้ว"
+  },
+  "api": {
+    "message": {
+      "success": "Success !"
+    },
+    "update-success": "Success !",
+    "error": {
+      "category-used": "Unfortunaty ... This category still using by some topics. Please make sure all topics change to another category first.",
+      "user": {
+        "mail-exist": "Mail already exist.",
+        "mail-not-found": "Mail not found.",
+        "mail-send-failed": "Username and E-mail doesn't match. Please check again",
+        "username-exist": "Username already exist.",
+        "user-save-failed": "Save failed, please contact admin.",
+        "user-delete-failed": "Delete failed.",
+        "unauthorized": "Unauthorized user.",
+        "reset-password-failed": "Save failed, please contact admin.",
+        "password-not-match": "Password not match.",
+        "token-invalid-expire": "Password reset token is invalid or has expired.",
+        "auth-failed": "Username or Password incorrect.",
+        "profile-failed": "You don't have permission to register",
+        "identification-exist": "ID card already exists.",
+        "profile-notfound": "You don't have permission to register"
+      }
+    }
+  },
+  "enquiry_by": {
+    "label": "Enquiry by",
+    "errors": {
+      "required": "Enquiry by is required"
+    }
+  }
+}

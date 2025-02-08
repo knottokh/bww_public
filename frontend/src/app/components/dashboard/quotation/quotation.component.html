@@ -1,0 +1,269 @@
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+        <mat-option value="quotation_code">เลขที่รายการ</mat-option>
+        <mat-option value="customer_code">{{
+          "customer.header.customer_code" | translate
+        }}</mat-option>
+        <mat-option value="customer_name">{{
+          "customer.header.customer_name" | translate
+        }}</mat-option>
+      </mat-select>
+      <input
+        [(ngModel)]="searchtext"
+        (keyup.enter)="onSearchClick((init = false))"
+        #titleen
+        placeholder=""
+      />
+      <a onclick="javascript:void(0)" (click)="onSearchClick((init = false))">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="action">
+    <!-- <a onclick="javascript:void(0)">
+      <span>แชร์ลิงค์</span>
+    </a> -->
+    <!-- <a
+      routerLink="/{{ routepath.customer }}/new"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span>เพิ่มลูกค้า</span>
+    </a> -->
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table custom-01">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.list" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title"
+        ><a
+          routerLink="/{{ routepath.quotation }}/{{ element._id }}/view"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a></mat-cell
+      >
+    </ng-container>
+
+    <ng-container matColumnDef="customer_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.customer_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_code">{{
+        element.customer_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="customer_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.customer_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_name">{{
+        element.customer_name
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.created" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.status" | translate
+      }}</mat-header-cell>
+      <mat-cell
+        [ngClass]="{
+          approved: element.status === qstatus.ordered,
+          cancelled: element.status === qstatus.cancel
+        }"
+        *matCellDef="let element"
+        data-label="status"
+        >{{ element.status }}</mat-cell
+      >
+    </ng-container>
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="remark">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.remark" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="remark">
+        <quill-view-html
+          class="view-quill"
+          [content]="element.remark || ''"
+          theme="snow"
+        ></quill-view-html
+      ></mat-cell>
+    </ng-container> -->
+
+    <!-- <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <button
+          type="button"
+          (click)="onEdit(modalManageCategory, element)"
+          mat-raised-button
+          color="warning"
+        >
+          {{ "button.edit" | translate }}
+        </button>
+        <button
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container> -->
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalManageCategory>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataForm" class="cmn-form">
+        <h6>{{ "setting.header.list" | translate }}</h6>
+        <p class="common-field">
+          <input
+            matInput
+            formControlName="title"
+            #title
+            [placeholder]="'setting.header.list' | translate"
+          />
+          <!--<span *ngIf="f['catname'].errors && f['catname'].errors.required">
+              {{ 'category.error.require-name' | translate }}
+            </span>-->
+        </p>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>

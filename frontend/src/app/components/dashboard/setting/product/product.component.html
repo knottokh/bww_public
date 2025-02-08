@@ -1,0 +1,612 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.setting }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  / <span>{{ "setting.product" | translate }}</span>
+</p>
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+        <mat-option value="stock_code">รหัสสินค้า</mat-option>
+        <mat-option value="title">ชื่อสินค้า</mat-option>
+      </mat-select>
+      <input
+        [(ngModel)]="searchtext"
+        (keyup.enter)="onSearchClick()"
+        #titleen
+        placeholder=""
+      />
+      <a onclick="javascript:void(0)" (click)="onSearchClick()">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="action-panel">
+  <!-- <p class="ttl">Filter</p>
+<div class="filter">
+   <mat-radio-group [(ngModel)]="groupfilter" (change)="doFilter()">
+     <mat-radio-button value="">All</mat-radio-button>
+     <mat-radio-button *ngFor="let group of groups" [value]="group">{{ group }}</mat-radio-button>
+   </mat-radio-group>
+ </div> -->
+  <div class="ttl">จำนวน {{ dataSourceCount }} รายการ</div>
+  <div class="action">
+    <a href="javascript:void(0)" (click)="openModal(modalManageCategory)">
+      เพิ่ม
+    </a>
+    <a href="javascript:void(0)" (click)="openModal(modalUpload)"> อัพโหลด </a>
+    <a href="javascript:void(0)" (click)="exportExcel()"> ดาวน์โหลด </a>
+    <button
+      id="hiddenBtnExport"
+      style="display: none"
+      type="button"
+      (click)="
+        exporter.exportTable('xlsx', {
+          fileName: 'รายการสินค้า',
+          sheet: 'data'
+        })
+      "
+      mat-button
+    >
+      Hidden Export Excel
+    </button>
+  </div>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="order">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="order">
+        <span *ngIf="i > 0" (click)="swapIndex(dataSource, i, i - 1)">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </span>
+        <span
+          *ngIf="i < dataSource.length - 1"
+          (click)="swapIndex(dataSource, i, i + 1)"
+        >
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </span>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="stock_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="stock_code">{{
+        element.stock_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_title" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title">{{
+        element.title
+      }}</mat-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="stock_type">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_type" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="stock_type">{{
+        element.stock_type
+      }}</mat-cell>
+    </ng-container> -->
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_unit">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_unit" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_unit">{{
+        element.product_unit
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_weight">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_weight" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_weight">{{
+        element.product_weight
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <button
+          type="button"
+          (click)="onEdit(modalManageCategory, element)"
+          mat-raised-button
+          color="warning"
+        >
+          {{ "button.edit" | translate }}
+        </button>
+        <button
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+
+  <mat-table
+    style="display: none"
+    id="export_table"
+    class="common-table"
+    [dataSource]="exportDataSource"
+    matTableExporter
+    #exporter="matTableExporter"
+    sheetName="sending-list"
+    fileName="รายการสินค้า"
+    (exportCompleted)="hideExportDlg()"
+  >
+    <ng-container matColumnDef="stock_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="stock_code">{{
+        element.stock_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_title" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title">{{
+        element.title
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="stock_type">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.stock_type" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="stock_type">{{
+        element.stock_type
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.price" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="price">{{
+        element.price
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="unit">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.unit" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="unit">{{
+        element.unit
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_unit">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_unit" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_unit">{{
+        element.product_unit
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_weight">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.product_weight" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_weight">{{
+        element.product_weight
+      }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="exportColumns"
+    ></mat-header-row>
+    <mat-row mat-row *matRowDef="let row; columns: exportColumns"></mat-row>
+  </mat-table>
+</div>
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalManageCategory>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataForm" class="cmn-form">
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_code" | translate }}</h6>
+          <input
+            matInput
+            formControlName="stock_code"
+            #stock_code
+            [placeholder]="'setting.header.stock_code' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_title" | translate }}</h6>
+          <input
+            matInput
+            formControlName="title"
+            #title
+            [placeholder]="'setting.header.stock_title' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_type" | translate }}</h6>
+          <mat-select formControlName="stock_type" placeholder="-- Select --">
+            <mat-option *ngFor="let item of stocktypes" [value]="item">
+              {{ item }}
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.price" | translate }}</h6>
+          <input
+            matInput
+            formControlName="price"
+            #price
+            type="number"
+            [placeholder]="'setting.header.price' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.unit" | translate }}</h6>
+          <!-- <mat-select formControlName="unit" placeholder="-- Select --">
+            <mat-option
+              *ngFor="let item of units"
+              [value]="item"
+            >
+              {{ item }}
+            </mat-option>
+          </mat-select> -->
+          <input
+            matInput
+            formControlName="unit"
+            #unit
+            [placeholder]="'setting.header.unit' | translate"
+            [matAutocomplete]="autoUnit"
+          />
+          <mat-autocomplete #autoUnit="matAutocomplete">
+            <mat-option
+              *ngFor="let option of filterunitOptions | async"
+              [value]="option"
+            >
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_code" | translate }}</h6>
+          <input
+            matInput
+            formControlName="product_code"
+            #product_code
+            [placeholder]="'setting.header.product_code' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_unit" | translate }}</h6>
+          <mat-select formControlName="product_unit" placeholder="-- Select --">
+            <mat-option *ngFor="let item of units" [value]="item">
+              {{ item }}
+            </mat-option>
+          </mat-select>
+          <!-- <input matInput formControlName="product_unit" #product_unit
+            [placeholder]="'setting.header.product_unit' | translate" [matAutocomplete]="autoUnit" />
+          <mat-autocomplete #autoUnit="matAutocomplete">
+            <mat-option *ngFor="let option of filterunitOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete> -->
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_weight" | translate }}</h6>
+          <input
+            matInput
+            formControlName="product_weight"
+            #product_weight
+            type="number"
+            [placeholder]="'setting.header.product_weight' | translate"
+          />
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<input type="file" #file style="display: none" (change)="onFilesAdded()" />
+
+<ng-template #modalUpload>
+  <div class="modal-body text-center">
+    <div>
+      <p class="import">
+        <a
+          *ngIf="!filetext && !uploading"
+          href="javascript:void(0)"
+          (click)="addFiles()"
+        >
+          <span>Select File</span>
+        </a>
+        <a
+          *ngIf="filetext && !uploading"
+          href="javascript:void(0)"
+          (click)="onImportData3()"
+        >
+          <span>Confirm to upload {{ filetext }}?</span>
+        </a>
+        <a *ngIf="filetext && uploading" href="javascript:void(0)">
+          <span>{{ filetext }}</span>
+          <div class="file-status" *ngFor="let file of files">
+            <div *ngIf="progress && progress[file.name]">
+              <mat-progress-bar
+                *ngIf="progress && progress[file.name]"
+                mode="determinate"
+                [value]="progress[file.name].progress | async"
+              ></mat-progress-bar>
+              <span
+                *ngIf="
+                  progress &&
+                  (progress[file.name].progress | async) == 100 &&
+                  !canBeClosed
+                "
+                >waiting import data to database
+                {{ progress[file.name].progress | async }}</span
+              >
+              <span
+                mat-line
+                *ngIf="
+                  progress &&
+                  (progress[file.name].progress | async) == 100 &&
+                  canBeClosed
+                "
+                >{{ importmessages[file.name] }}</span
+              >
+              <span mat-line>{{ importmessages[file.name] }}</span>
+            </div>
+          </div>
+        </a>
+      </p>
+      <p style="color: red">{{ errorparse }}</p>
+      <button
+        class="cancel"
+        type="button"
+        (click)="declineAlert(true)"
+        mat-raised-button
+        color="secondary"
+        [disabled]="uploading"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<button
+  id="hiddenExportingShow"
+  style="display: none"
+  (click)="openModalAlert(modalExporting)"
+>
+  {{ "message.button.send-agian" | translate }}
+</button>
+<button id="hiddenExportingHide" style="display: none" (click)="declineAlert()">
+  {{ "message.button.send-agian" | translate }}
+</button>
+
+<ng-template #modalExporting>
+  <div class="modal-alert">
+    <div class="modal-title">
+      กำลังดาวน์โหลด
+      <button
+        type="button"
+        class="close pull-right"
+        aria-label="Close"
+        (click)="declineAlert()"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body" *ngIf="percenLoading == 100">
+      <svg
+        version="1.1"
+        id="L6"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        viewBox="0 0 100 100"
+        enable-background="new 0 0 100 100"
+        xml:space="preserve"
+      >
+        <rect
+          fill="none"
+          stroke="#AF0830"
+          stroke-width="4"
+          x="25"
+          y="25"
+          width="50"
+          height="50"
+        >
+          <animateTransform
+            attributeName="transform"
+            dur="0.5s"
+            from="0 50 50"
+            to="180 50 50"
+            type="rotate"
+            id="strokeBox"
+            attributeType="XML"
+            begin="rectBox.end"
+          />
+        </rect>
+        <rect x="27" y="27" fill="#AF0830" width="46" height="50">
+          <animate
+            attributeName="height"
+            dur="1.3s"
+            attributeType="XML"
+            from="50"
+            to="0"
+            id="rectBox"
+            fill="freeze"
+            begin="0s;strokeBox.end"
+          />
+        </rect>
+      </svg>
+      <p class="desc">File Creating</p>
+      <div class="btn-wrap">
+        <button class="scnd-btn" type="button" (click)="declineAlert()">
+          Close
+        </button>
+      </div>
+    </div>
+    <div class="modal-body" *ngIf="percenLoading !== 100">
+      Getting Data {{ percenLoading }} / 100
+    </div>
+  </div>
+</ng-template>

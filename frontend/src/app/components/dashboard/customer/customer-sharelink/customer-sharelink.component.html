@@ -1,0 +1,158 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.customer }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  / <span>ฟอร์มลงทะเบียน</span>
+</p>
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">URL ลงทะเบียนลูกค้า</p>
+    <div class="filter">
+      <input [(ngModel)]="clipboardurl" #titleen placeholder="" />
+      <!-- <button [cdkCopyToClipboard]="clipboardurl">Copy to clipboard</button> -->
+      <a onclick="javascript:void(0)" [cdkCopyToClipboard]="clipboardurl">
+        <span>คัดลอก</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="action">
+    <a onclick="javascript:void(0)">
+      <span>ลบทุกรายการ</span>
+    </a>
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="register_date">
+      <mat-header-cell *matHeaderCellDef>{{
+        "customer.header.register_date" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="register_date">{{
+        element.created
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="customer_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "customer.header.customer_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_name">
+        {{ element.customer_name }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="phone">
+      <mat-header-cell *matHeaderCellDef>{{
+        "customer.header.phone" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="phone">{{
+        element.phone
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="message">
+      <mat-header-cell *matHeaderCellDef>{{
+        "customer.header.message" | translate
+      }}</mat-header-cell>
+      <mat-cell
+        *matCellDef="let element"
+        data-label="message"
+        [innerHTML]="element.note"
+      ></mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <a
+          routerLink="/{{ routepath.customer }}/{{ element._id }}"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>อนุมัติ</span>
+        </a>
+        <button
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+</div>
+
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>

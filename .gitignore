@@ -1,0 +1,9 @@
+# ignore all node_modules
+node_modules
+dist/
+#nodemon.json
+#frontend/
+.vscode/
+#.gitignore
+uploads/
+frontend15/

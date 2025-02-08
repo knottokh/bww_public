@@ -1,0 +1,72 @@
+<!--<div class="alert alert-info mod-config">
+  <strong>Normal User</strong> - U: user P: user<br />
+  <strong>Administrator</strong> - U: admin P: admin<br/>
+  <strong>Super Administrator</strong> - U: sadmin P: sadmin<br/>
+</div>-->
+<div class="interact-box">
+  <div class="log-in-form">
+    <form [formGroup]="loginForm" class="cmn-form">
+      <h2>ระบบบริหารจัดการลูกค้า<br />บริษัท กรุงเทพ ไวร์เวิร์ค จำกัด</h2>
+      <div class="common-field username">
+        <h6>ชื่อผู้ใช้งาน</h6>
+        <div class="input-wrap">
+          <input
+            id="username"
+            name="username"
+            [placeholder]="'field.username' | translate"
+            formControlName="username"
+            #username
+          />
+        </div>
+      </div>
+      <div class="common-field password">
+        <h6>รหัสผ่าน</h6>
+        <div class="input-wrap">
+          <mat-pass-toggle-visibility
+            #togglepw
+            matSuffix
+          ></mat-pass-toggle-visibility>
+          <input
+            id="password"
+            name="password"
+            [type]="togglepw.type"
+            [placeholder]="'field.password' | translate"
+            formControlName="password"
+            #password
+          />
+        </div>
+      </div>
+      <span
+        class="error"
+        *ngIf="f['username'].errors && f['username'].errors.required"
+        >กรุณากรอกชื่อผู้ใช้งาน</span
+      >
+      <span
+        class="error"
+        *ngIf="f['password'].errors && f['password'].errors.required"
+        >กรุณากรอกรหัสผ่าน</span
+      >
+      <p class="btn-wrap">
+        <button
+          id="submit"
+          class="cmn-btn primary"
+          type="submit"
+          (click)="onSubmit()"
+          [disabled]="loginForm.invalid"
+        >
+          เข้าใช้งาน
+        </button>
+      </p>
+      <p class="forget-pw">
+        <a routerLink="/{{ routepath.forgetpassword }}">ลืมรหัสผ่าน</a>
+      </p>
+    </form>
+    <mat-progress-bar
+      mode="indeterminate"
+      [style.display]="loading ? 'block' : 'none'"
+    ></mat-progress-bar>
+    <div *ngIf="error" class="alert alert-danger">
+      {{ "api.error.user." + error | translate }}
+    </div>
+  </div>
+</div>

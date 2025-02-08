@@ -1,0 +1,142 @@
+<!-- <a routerLink="/{{ routepath.order }}/aaa" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: false}">
+  <span>Test New ใบสั่งผลิต</span>
+</a> -->
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+        <!-- <mat-option value="quotation_code">
+          {{ "quotation.header.quotation_code" | translate }}
+        </mat-option> -->
+        <mat-option value="quotation_code">เลขที่รายการ</mat-option>
+        <mat-option value="customer_code">{{
+          "customer.header.customer_code" | translate
+        }}</mat-option>
+        <mat-option value="customer_name">{{
+          "customer.header.customer_name" | translate
+        }}</mat-option>
+      </mat-select>
+      <input
+        [(ngModel)]="searchtext"
+        (keyup.enter)="onSearchClick((init = false))"
+        #titleen
+        placeholder=""
+      />
+      <a onclick="javascript:void(0)" (click)="onSearchClick((init = false))">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table custom-01">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.list" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title"
+        ><a
+          routerLink="/{{ routepath.order }}/{{ element.customer_id }}/{{
+            element._id
+          }}"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a></mat-cell
+      >
+    </ng-container>
+
+    <ng-container matColumnDef="customer_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.customer_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_code">{{
+        element.customer_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="customer_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.customer_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_name">{{
+        element.customer_name
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.created" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.status" | translate
+      }}</mat-header-cell>
+      <mat-cell
+        [ngClass]="{
+          prcessing: element.status === jstatus.prcessing,
+          ready: element.status === jstatus.ready,
+          cancelled: element.status === jstatus.cancel
+        }"
+        *matCellDef="let element"
+        data-label="status"
+        >{{ element.status }}</mat-cell
+      >
+    </ng-container>
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="remark">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.remark" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="remark">
+        <quill-view-html
+          class="view-quill"
+          [content]="element.remark || ''"
+          theme="snow"
+        ></quill-view-html
+      ></mat-cell>
+    </ng-container> -->
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

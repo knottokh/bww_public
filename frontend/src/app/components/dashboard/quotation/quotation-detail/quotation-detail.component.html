@@ -1,0 +1,1114 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.quotation }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  /
+  <span
+    >{{ dataSource.quotation_code }} ({{ dataSource.customer_name }}) -
+    {{ moment(dataSource.created).format("DD/MM/YYYY hh:mm") }} น.</span
+  >
+</p>
+
+<div class="quotation-details">
+  <div class="quotation-block">
+    <div>
+      <p class="dtl-bullet">
+        <span class="ttl">ประเภทลูกค้า</span
+        >{{
+          dataSource.customer_type !== undefined
+            ? dataSource.customer_type
+            : currentCustomerData.customer_type
+        }}
+        /
+        {{
+          dataSource.payment_type !== undefined
+            ? dataSource.payment_type
+            : currentCustomerData.payment_type
+        }}
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">โน๊ต:</span>
+        <quill-view-html
+          class="view-quill"
+          [content]="
+            dataSource.payment_remark !== undefined
+              ? dataSource.payment_remark
+              : currentCustomerData.payment_remark || ''
+          "
+          theme="snow"
+        ></quill-view-html>
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">การจัดส่ง</span
+        >{{
+          dataSource.shipping_type !== undefined
+            ? dataSource.shipping_type
+            : currentCustomerData.shipping_type
+        }}
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">โน๊ต:</span>
+        <quill-view-html
+          class="view-quill"
+          [content]="
+            dataSource.shipping_detail !== undefined
+              ? dataSource.shipping_detail
+              : currentCustomerData.shipping_detail || ''
+          "
+          theme="snow"
+        ></quill-view-html>
+      </p>
+      <p class="dtl-bullet" *ngIf="dataSource.payment_type">
+        <span class="ttl">ติดต่อ</span>
+        {{ dataSource.dealer ? dataSource.dealer + " / " : "" }}
+        {{ dataSource.phone ? dataSource.phone : "" }}
+        {{ dataSource.email ? " / " + dataSource.email : "" }}
+        {{ dataSource.line ? " / " + dataSource.line : "" }}
+      </p>
+      <!-- Case not have customer data in quotation before. -->
+      <p class="dtl-bullet" *ngIf="!dataSource.payment_type">
+        <span class="ttl">ติดต่อ</span>
+        {{
+          currentCustomerData.dealer ? currentCustomerData.dealer + " / " : ""
+        }}
+        {{ currentCustomerData.phone ? currentCustomerData.phone : "" }}
+        {{ currentCustomerData.email ? " / " + currentCustomerData.email : "" }}
+        {{ currentCustomerData.line ? " / " + currentCustomerData.line : "" }}
+      </p>
+    </div>
+    <div class="ref-tags">
+      <p
+        class="dtl-bullet"
+        *ngIf="(dataSource.child_quotations || []).length != 0"
+      >
+        <span class="ttl">REF</span>
+        <a
+          class="tag"
+          *ngFor="let job of dataSource.child_quotations || []; let i = index"
+          routerLink="/{{
+            job.document_type == 'po' ? routepath.purchase : routepath.order
+          }}/{{
+            job.document_type == 'po' ? job._id : dataSource.customer_id
+          }}/{{ job.document_type == 'po' ? 'view' : job._id }}"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [ngbTooltip]="
+            removeTags(job.status == qstatus.cancel ? job.cancel_remark : '')
+          "
+        >
+          <span class="type">{{ job.quotation_code }}</span
+          ><span class="status">{{ job.status }}</span>
+        </a>
+      </p>
+    </div>
+  </div>
+  <div class="quotation-status">
+    <div
+      [ngClass]="{
+        approved: dataSource.status === qstatus.ordered,
+        cancelled: dataSource.status === qstatus.cancel
+      }"
+      class="status"
+    >
+      {{ dataSource.status }}
+    </div>
+    <button
+      class="action"
+      onclick="javascript:void(0)"
+      (click)="openModal(modalAction)"
+    >
+      Action
+    </button>
+  </div>
+</div>
+
+<div class="combo-table">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>รายการ / ขนาด</th>
+        <th class="center">จำนวน</th>
+        <th class="center">หน่วย</th>
+        <th class="currency">ราคา(บาท)</th>
+        <th class="currency">ราคารวม(บาท)</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let stock of dataSource.stocks || []; let i = index">
+      <tr class="primary">
+        <td>{{ i + 1 }}</td>
+        <td>{{ stock.title }}</td>
+        <td class="center">
+          {{ stock.stock_type == "สั่งผลิต" ? "" : stock.quantity }}
+        </td>
+        <td class="center">
+          {{ stock.stock_type == "สั่งผลิต" ? "" : stock.unit }}
+        </td>
+        <td class="currency">
+          {{
+            stock.stock_type != stockType.order
+              ? (stock.price | number : ".2")
+              : (stock.price | number : ".2")
+          }}
+        </td>
+        <td class="currency">
+          {{
+            stock.stock_type != stockType.order
+              ? (stock.price * stock.quantity | number : ".2")
+              : ""
+          }}
+        </td>
+      </tr>
+      <tr class="sub" *ngFor="let product of stock.products; let j = index">
+        <td>{{ i + 1 + "." + (j + 1) }}</td>
+        <td>
+          <div class="align">
+            <span class="w50 center">ขนาด</span>
+            <span class="w100 right">{{ product.width | number : ".2" }}</span>
+            <span class="w50 center">x</span>
+            <span class="w100 right">{{ product.height | number : ".2" }}</span>
+            <span class="w50 center">{{ stock.product_unit }}</span>
+          </div>
+        </td>
+        <td class="center">{{ product.quantity }}</td>
+        <td class="center">{{ product.unit }}</td>
+        <td class="currency">{{ product.price | number : ".2" }}</td>
+        <td class="currency">
+          {{ product.price * product.quantity | number : ".2" }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Footer -->
+<div class="note-block">
+  <div>
+    <p>เอกสารอ้างอิง</p>
+    <div
+      class="details-action"
+      *ngIf="!is_cancelled && !(dataSource.status == qstatus.ordered)"
+    >
+      <a *ngIf="!isedit_ref" (click)="onEdit('document_ref')"> แก้ไข </a>
+      <a *ngIf="isedit_ref" (click)="onSaveData('document_ref')"> บันทึก </a>
+      <a *ngIf="isedit_ref" (click)="onCancel('document_ref')"> ยกเลิก </a>
+    </div>
+    <quill-editor
+      [styles]="quillStyle"
+      [modules]="quillConfig.modules"
+      [disabled]="!isedit_ref"
+      [(ngModel)]="dataSource.document_reference"
+      #document_ref
+    >
+    </quill-editor>
+  </div>
+  <div class="attach">
+    <p>รูปประกอบ/แบบ</p>
+    <div
+      class="details-action"
+      *ngIf="!is_cancelled && !(dataSource.status == qstatus.ordered)"
+    >
+      <a (click)="openModal(modalUploadDocument)"> Browse </a>
+    </div>
+    <a
+      class="upload"
+      onclick="javascript:void(0)"
+      (click)="openModal(modalUploadDocument)"
+    >
+    </a>
+    <mat-table [dataSource]="dataSourceAttach" class="table">
+      <ng-container matColumnDef="document_name">
+        <mat-header-cell *matHeaderCellDef>ชื่อเอกสาร</mat-header-cell>
+        <mat-cell *matCellDef="let element" data-label="document_name">
+          <a
+            href="javascript:void(0)"
+            *ngIf="element.document"
+            (click)="onClickNewTab(getFileUrl(element.document!.filename))"
+          >
+            {{ element.document_name }}
+          </a>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element" data-label="action">
+          <button
+            class="delete"
+            type="button"
+            (click)="openModal(modalConfirmDeleteAttach, element)"
+            mat-raised-button
+            color="danger"
+          >
+            {{ "button.delete" | translate }}
+          </button>
+        </mat-cell>
+      </ng-container>
+      <!--
+      <mat-header-row
+        mat-header-row
+        *matHeaderRowDef="displayedAttachColumns"
+      ></mat-header-row> -->
+      <mat-row
+        mat-row
+        *matRowDef="let row; let element; columns: displayedAttachColumns"
+      ></mat-row>
+    </mat-table>
+  </div>
+  <div>
+    <p>หมายเหตุ</p>
+    <div
+      class="details-action"
+      *ngIf="!is_cancelled && !(dataSource.status == qstatus.ordered)"
+    >
+      <a *ngIf="!isedit_remark" (click)="onEdit('remark')">แก้ไข</a>
+      <a *ngIf="isedit_remark" (click)="onSaveData('remark')"> บันทึก </a>
+      <a *ngIf="isedit_remark" (click)="onCancel('remark')">ยกเลิก</a>
+    </div>
+    <quill-editor
+      [styles]="quillStyle"
+      [modules]="quillConfig.modules"
+      [disabled]="!isedit_remark"
+      [(ngModel)]="dataSource.remark"
+      #remark
+    >
+    </quill-editor>
+  </div>
+  <div class="summary">
+    <p>
+      <span class="ttl">รวม</span
+      ><span class="value currency">{{
+        dataSource.customer_type == "VAT"
+          ? (sumQuotation | number : ".2") + " บาท"
+          : "-"
+      }}</span>
+    </p>
+    <p>
+      <span class="ttl">VAT 7%</span
+      ><span class="value currency">{{
+        dataSource.customer_type == "VAT" ? (vat | number : ".2") + " บาท" : "-"
+      }}</span>
+    </p>
+    <p>
+      <span class="ttl">ยอดสุทธิ</span
+      ><span class="value currency">{{
+        dataSource.customer_type == "VAT"
+          ? (totalQuotation | number : ".2") + " บาท"
+          : (sumQuotation | number : ".2") + " บาท"
+      }}</span>
+    </p>
+  </div>
+</div>
+
+<ng-template #modalAction>
+  <div class="modal-body text-center">
+    <div>
+      <button
+        class="confirm"
+        mat-raised-button
+        color="success"
+        (click)="openModal(modalConfirmArrpove)"
+        *ngIf="!is_cancelled && !(dataSource.status == qstatus.ordered)"
+      >
+        {{ "button.approve-quotation" | translate }}
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        (click)="onGoTo('quotation')"
+        mat-raised-button
+        color="secondary"
+        *ngIf="!is_cancelled && !(dataSource.status == qstatus.ordered)"
+      >
+        {{ "button.edit-quotation" | translate }}
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModal(modalConfirmDuplicate)"
+      >
+        {{ "button.duplicate-quotation" | translate }}
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="exportAsPDF(false)"
+        *ngIf="!is_cancelled"
+      >
+        ดูตัวอย่าง
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="exportAsPDF(true)"
+        *ngIf="!is_cancelled"
+      >
+        ดาวน์โหลด
+      </button>
+      <!-- <button class="cancel" type="button" mat-raised-button color="secondary">
+        {{ "button.download" | translate }}
+      </button> -->
+
+      <!-- <button class="cancel" type="button" mat-raised-button color="secondary">
+        {{ "button.renew-quotation" | translate }}
+      </button> -->
+      <button
+        class="cancel"
+        type="button"
+        (click)="openModalConfirm(modalConfirmCancel)"
+        mat-raised-button
+        color="secondary"
+        *ngIf="!is_cancelled"
+      >
+        {{ "button.cancel-quotation" | translate }}
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        (click)="openModalConfirm(modalConfirmDelete)"
+        mat-raised-button
+        color="secondary"
+        *ngIf="is_cancelled && isSuperAdmin"
+      >
+        {{ "button.delete-quotation" | translate }}
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModal(modalEditCustomerInfo)"
+      >
+        {{ "button.edit-customer" | translate }}
+      </button>
+
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmArrpove>
+  <div class="modal-body text-center">
+    <div *ngIf="!approveResult">
+      <p class="img">
+        <img src="assets/img/icon/rubber-ring.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการอนุมัติ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        mat-raised-button
+        color="primary"
+        (click)="onApprove()"
+      >
+        {{ "button.approve-quotation" | translate }}
+      </button>
+    </div>
+    <div *ngIf="approveResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDuplicate>
+  <div class="modal-body text-center">
+    <div *ngIf="!duplicateResult">
+      <p class="img">
+        <img src="assets/img/icon/crab.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการคัดลอกใบเสนอราคา</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        mat-raised-button
+        color="primary"
+        (click)="onDuplicate()"
+      >
+        {{ "button.duplicate-quotation" | translate }}
+      </button>
+    </div>
+    <div *ngIf="duplicateResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmCancel>
+  <div class="modal-body text-center">
+    <div *ngIf="!is_saving">
+      <h5 class="ttl">เหตุผลการยกเลิก</h5>
+      <quill-editor
+        [styles]="quillStyle"
+        [modules]="quillConfig.modules"
+        [(ngModel)]="cancelRemark"
+        #cancel_remark
+      >
+      </quill-editor>
+      <button
+        class="cancel"
+        type="button"
+        (click)="declineConfirm()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onCancel('status')"
+        [disabled]="checkEmptyRemark()"
+        mat-raised-button
+        color="primary"
+      >
+        ยืนยัน
+      </button>
+    </div>
+    <div *ngIf="is_saving">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="declineConfirm()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div>
+      <p>ยืนยันการการลบใบสั่งผลิต?</p>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="onDeleteQuotation()"
+      >
+        ยืนยัน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="declineConfirm()"
+      >
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<button
+  class="display-none"
+  id="showModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="openModalConfirm(modalLoading)"
+>
+  X
+</button>
+<button
+  class="display-none"
+  id="hideModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="declineConfirm()"
+>
+  X
+</button>
+
+<ng-template #modalLoading>
+  <div class="modal-body text-center">
+    <div>
+      <p>กำลังดำเนินการ</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalUploadDocument>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataFormAttach" class="cmn-form">
+        <div class="common-field browse" (click)="fileInput.click()">
+          <p class="file-name">
+            {{
+              files.length > 0 ? files[0].name : "คลิ๊กที่นี่เพื่อเลือกเอกสาร"
+            }}
+          </p>
+          <input
+            hidden
+            type="file"
+            accept="*"
+            #fileInput
+            (change)="uploadFile($event.target.files)"
+          />
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveDataAttach()"
+        [disabled]="files.length == 0"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDeleteAttach>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDeleteAttach()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalEditCustomerInfo>
+  <div class="modal-body editor-modal text-center">
+    <div>
+      <form #form="ngForm" [formGroup]="dataFormCustomer" class="cmn-form">
+        <div class="common-field">
+          <h6>{{ "customer.header.customer_code" | translate }} *</h6>
+          <input
+            formControlName="customer_code"
+            #customer_code
+            placeholder=""
+          />
+        </div>
+        <div class="common-field">
+          <h6>ชื่อลูกค้า *</h6>
+          <input
+            formControlName="customer_name"
+            #customer_name
+            placeholder=""
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "customer.header.dealer" | translate }}</h6>
+          <input formControlName="dealer" #dealer placeholder="" />
+        </div>
+        <div class="common-field">
+          <h6>{{ "customer.header.phone" | translate }} *</h6>
+          <input formControlName="phone" #phone placeholder="" />
+        </div>
+        <div class="common-field">
+          <h6>{{ "customer.header.email" | translate }}</h6>
+          <input formControlName="email" #email placeholder="" />
+        </div>
+        <div class="common-field">
+          <h6>{{ "customer.header.line" | translate }}</h6>
+          <input formControlName="line" #line placeholder="" />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "customer.header.customer_type" | translate }} *</h6>
+          <mat-select
+            formControlName="customer_type"
+            placeholder="-- Select --"
+          >
+            <mat-option value="VAT">VAT</mat-option>
+            <mat-option value="NO VAT">NO VAT</mat-option>
+          </mat-select>
+        </div>
+        <div class="common-field">
+          <h6>{{ "customer.header.payment_type" | translate }} *</h6>
+          <mat-select formControlName="payment_type" placeholder="-- Select --">
+            <mat-option
+              *ngFor="let item of payment_type_datas"
+              [value]="item.title"
+            >
+              {{ item.title }}
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="common-field">
+          <div class="field-full-width">
+            <h5>{{ "customer.header.payment_remark" | translate }}</h5>
+            <textarea
+              formControlName="payment_remark"
+              #payment_remark
+              name=""
+              id=""
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "customer.header.shipping_type" | translate }}</h6>
+          <mat-select
+            formControlName="shipping_type"
+            placeholder="-- Select --"
+          >
+            <mat-option
+              *ngFor="let item of shipping_type_datas"
+              [value]="item.title"
+            >
+              {{ item.title }}
+            </mat-option>
+          </mat-select>
+          <span
+            *ngIf="
+              fc['shipping_type'].value == null ||
+              fc['shipping_type'].value == ''
+            "
+          >
+          </span>
+        </div>
+
+        <div class="common-field">
+          <div class="field-full-width">
+            <h5>{{ "customer.header.shipping_detail" | translate }}</h5>
+            <textarea
+              formControlName="shipping_detail"
+              #shipping_detail
+              name=""
+              id=""
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- <div class="common-field">
+          <div class="field-full-width">
+            <h5>{{ "customer.header.tax_address" | translate }}</h5>
+            <quill-editor
+              [styles]="quillStyle"
+              [modules]="quillConfig.modules"
+              formControlName="tax_address"
+              #tax_address
+            >
+            </quill-editor>
+          </div>
+        </div> -->
+
+        <!-- <div class="common-field">
+          <h6>ID</h6>
+          <input formControlName="tax_id" #tax_id placeholder="" />
+        </div> -->
+
+        <!-- <div class="common-field">
+          <div class="field-full-width">
+            <h5>โน๊ต</h5>
+            <quill-editor
+              [styles]="quillStyle"
+              [modules]="quillConfig.modules"
+              formControlName="note"
+              #note
+            >
+            </quill-editor>
+          </div>
+        </div> -->
+
+        <!-- <div class="common-field">
+          <div class="field-full-width">
+            <h5>หมายเหตุ (สำหรับแสดงบนใบเสนอราคาเพิ่มเติม)</h5>
+            <quill-editor
+              [styles]="quillStyle"
+              [modules]="quillConfig.modules"
+              formControlName="remark"
+              #remark
+            >
+            </quill-editor>
+          </div>
+        </div> -->
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        mat-raised-button
+        color="primary"
+        (click)="onEditCustomerData()"
+        [disabled]="dataFormCustomer.invalid"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <!-- <div *ngIf="editCustomerResult">
+        <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <p class="img">
+          <img src="assets/img/icon/reading.png" alt="" srcset="" />
+        </p>
+        <div *ngIf="dlgerror" class="desc">
+          {{ "api.error." + dlgerror | translate }}
+        </div>
+        <button
+          class="cancel"
+          *ngIf="dlgerror"
+          type="button"
+          (click)="decline()"
+          mat-raised-button
+          color="secondary"
+        >
+          {{ "button.close" | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ "api." + error | translate }}
+      </div>
+      <div *ngIf="msgok" class="alert alert-success">
+        {{ "api." + msgok | translate }}
+      </div> -->
+    </div>
+  </div>
+</ng-template>
+
+<!-- ************************************************************** PDF SECTION *************************************************** -->
+<div class="pdf-section">
+  <div id="topdf" class="pages">
+    <div
+      class="page"
+      *ngFor="
+        let printDocument of printDocuments.concat(printImages);
+        let i = index
+      "
+    >
+      <!-- header section -->
+      <div class="header">
+        <div class="main">
+          <div class="company-profile">
+            <p class="logo">
+              <img src="assets/img/logo.png" />
+            </p>
+            <div class="address">
+              <p class="company-name">บริษัท กรุงเทพ ไวร์เวิร์ค จำกัด</p>
+              <p>162 ถนนจรัสเมือง แขวงรองเมือง เขตปทุมวัน กรุงเทพฯ 10330</p>
+              <p>{{ "โทร. 02-219-4777, 02-219-4888 LINE @bkkww" }}</p>
+            </div>
+          </div>
+          <div class="dtls">
+            <div>
+              <p>
+                <span class="ttl">ชื่อลูกค้า </span>:&nbsp;
+                {{ dataSource.customer_name }}
+              </p>
+              <p>
+                <span class="ttl">ติดต่อ </span>:&nbsp;
+                {{ dataSource.dealer }}
+                {{ dataSource.dealer && dataSource.phone ? " / " : "" }}
+                {{ dataSource.phone ? dataSource.phone : "" }}
+                <!-- {{
+                  currentCustomerData.email
+                    ? " / " + currentCustomerData.email
+                    : ""
+                }} -->
+              </p>
+              <p>
+                <span class="ttl">สร้างโดย </span>:&nbsp;
+                {{ currentUser.fullname }}
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="ttl">การชำระเงิน </span>:&nbsp;
+                {{ dataSource.payment_type }}
+              </p>
+              <p>
+                <span class="ttl">การจัดส่ง </span>:&nbsp;
+                {{ dataSource.shipping_type }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="sub">
+          <p class="doc-type">ใบเสนอราคา</p>
+          <p class="quotation-code">{{ dataSource.quotation_code }}</p>
+          <p *ngIf="dataSource.created">
+            {{ moment(dataSource.created).format("DD/MM/YYYY") }}
+          </p>
+        </div>
+      </div>
+
+      <!-- body section -->
+      <!-- type document -->
+      <div class="page-wrap">
+        <div class="page-inner-wrap">
+          <div
+            class="quotation-pdf-table"
+            style="width: 100%"
+            *ngIf="printDocument.type == 'document'"
+          >
+            <div class="primary">
+              <p class="bold" style="width: 8%">#</p>
+              <p style="width: 40%">รายการ / ขนาด</p>
+              <p class="center" style="width: 10%">จำนวน</p>
+              <p class="center" style="width: 10%">หน่วย</p>
+              <p class="right" style="width: 12%">ราคา (บาท)</p>
+              <p class="right" style="width: 20%">ราคารวม (บาท)</p>
+            </div>
+            <div class="sub" *ngFor="let item of printDocument.items">
+              <p class="bold" style="width: 8%">{{ item.printIndex }}</p>
+              <p style="width: 40%">{{ item.title }}</p>
+              <p class="center" style="width: 10%">
+                {{ item.stock_type !== stockType.order ? item.quantity : "" }}
+              </p>
+              <p class="center" style="width: 10%">
+                {{ item.stock_type !== stockType.order ? item.unit : "" }}
+              </p>
+              <p class="right" style="width: 12%">
+                {{
+                  item.stock_type !== stockType.order
+                    ? (item.price | number : ".2")
+                    : ""
+                }}
+              </p>
+              <p class="right" style="width: 20%">
+                {{
+                  item.stock_type !== stockType.order
+                    ? (item.quantity * item.price | number : ".2")
+                    : ""
+                }}
+              </p>
+            </div>
+          </div>
+
+          <!-- body section -->
+          <!-- type image -->
+          <div *ngIf="printDocument.type == 'image'">
+            <div *ngFor="let image of printDocument.imageSet">
+              <img
+                style="width: 100%"
+                src="{{ getFileUrl(image.document!.filename) }}"
+              />
+            </div>
+          </div>
+
+          <p class="page-count">
+            {{
+              "หน้า " +
+                (i + 1) +
+                "/" +
+                (printDocuments.length + printImages.length)
+            }}
+          </p>
+        </div>
+
+        <!-- footer section -->
+        <div class="footer">
+          <div class="dtls">
+            <div class="doc-note">
+              <p class="ttl">เอกสารอ้างอิงเลขที่</p>
+              <p class="val" [innerHTML]="dataSource.document_reference"></p>
+            </div>
+            <div class="delivery">
+              <p class="ttl">ที่อยู่ในการจัดส่ง (ถ้ามี)</p>
+              <p class="val">
+                <span [innerHTML]="currentCustomerData.shipping_detail"></span>
+              </p>
+            </div>
+          </div>
+          <div class="footer-summary">
+            <div
+              class="remark"
+              [innerHTML]="
+                dataSource.remark.length || []
+                  ? 'หมายเหตุ ' + dataSource.remark
+                  : ''
+              "
+            ></div>
+            <div class="sum">
+              <p>
+                <span class="ttl">รวม</span
+                ><span class="value currency">{{
+                  dataSource.customer_type == "VAT"
+                    ? (sumQuotation | number : ".2") + " บาท"
+                    : "-"
+                }}</span>
+              </p>
+              <p>
+                <span class="ttl">VAT 7%</span
+                ><span class="value currency">{{
+                  dataSource.customer_type == "VAT"
+                    ? (vat | number : ".2") + " บาท"
+                    : "-"
+                }}</span>
+              </p>
+              <p>
+                <span class="ttl">ยอดสุทธิ</span
+                ><span class="value currency">{{
+                  dataSource.customer_type == "VAT"
+                    ? (totalQuotation | number : ".2") + " บาท"
+                    : (sumQuotation | number : ".2") + " บาท"
+                }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ************************ PDF SECTION END **************************** -->

@@ -1,0 +1,788 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.order }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  /
+  <span
+    >{{ currentQuotationData.quotation_code }} ({{
+      currentCustomerData.customer_name
+    }}) - {{ currentQuotationData.createdTxt }} น.
+  </span>
+</p>
+<div class="order-details">
+  <div class="order-block">
+    <div>
+      <p class="dtl-bullet">
+        <span class="ttl">ประเภทลูกค้า</span
+        >{{ currentCustomerData.customer_type }} /
+        {{ currentCustomerData.payment_type }}
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">โน๊ต:</span>
+        <quill-view-html
+          class="view-quill"
+          [content]="currentCustomerData.payment_remark || ''"
+          theme="snow"
+        ></quill-view-html>
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">การจัดส่ง</span
+        >{{ currentCustomerData.shipping_type }}
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">โน๊ต:</span>
+        <quill-view-html
+          class="view-quill"
+          [content]="currentCustomerData.shipping_detail || ''"
+          theme="snow"
+        ></quill-view-html>
+      </p>
+      <p class="dtl-bullet">
+        <span class="ttl">ติดต่อ</span>
+        {{
+          currentCustomerData.dealer ? currentCustomerData.dealer + " / " : ""
+        }}
+        {{ currentCustomerData.phone }}
+        {{ currentCustomerData.email ? " / " + currentCustomerData.email : "" }}
+        {{ currentCustomerData.line ? " / " + currentCustomerData.line : "" }}
+      </p>
+    </div>
+    <div class="ref-tags">
+      <p
+        class="dtl-bullet"
+        *ngIf="(currentQuotationData.ref_quotation || []).length != 0"
+      >
+        <span class="ttl">REF</span>
+        <a
+          class="tag"
+          *ngFor="let job of currentQuotationData.ref_quotation || []; let i = index"
+          routerLink="/{{ routepath.quotation }}/{{
+            job._id
+          }}/view"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [ngbTooltip]="
+            removeTags(job.status == jstatus.cancel ? job.cancel_remark : '')
+          "
+        >
+          <span class="type">{{ job.quotation_code }}</span
+          ><span class="status">{{ job.status }}</span>
+        </a>
+      </p>
+    </div>
+  </div>
+  <div class="order-block weight pc-only">
+    <!-- <span class="ttl float">น้ำหนัก (กก.)</span
+    >{{ calWeight() | number : ".2" }} -->
+    <span class="ttl float">ตรม.</span>{{ calWeight() | number : ".2" }}
+  </div>
+  <div class="order-status">
+    <p
+      [ngClass]="{
+        prcessing: currentQuotationData.status === jstatus.prcessing,
+        ready: currentQuotationData.status === jstatus.ready,
+        cancelled: currentQuotationData.status === jstatus.cancel
+      }"
+      class="status"
+    >
+      {{ currentQuotationData.status }}
+    </p>
+    <button
+      class="action"
+      onclick="javascript:void(0)"
+      (click)="openModal(modalAction)"
+    >
+      Action
+    </button>
+  </div>
+</div>
+
+<div class="inner">
+  <!-- <a *ngIf="!isedit_stock" (click)="onEdit('stock')">แก้ไข</a>
+  <a *ngIf="isedit_stock">บันทึก</a>
+  <a *ngIf="isedit_stock" (click)="onCancel('stock')">ยกเลิก </a> -->
+  <div class="combo-table">
+    <table>
+      <thead>
+        <tr>
+          <!-- <th class="center">#</th> -->
+          <th>รายการ / ขนาด</th>
+          <th class="center">จำนวน</th>
+          <th class="w150 center">หน่วย</th>
+          <th class="w150">หน่วยงานที่ผลิต</th>
+        </tr>
+      </thead>
+      <tbody *ngFor="let q of currentQuotationData.stocks || []; let i = index">
+        <tr class="primary">
+          <!-- <td class="center">{{ i + 1 }}</td> -->
+          <td>{{ q.title }}</td>
+          <td class="center">
+            {{ q.stock_type == "สั่งผลิต(1D)" ? q.quantity : "" }}
+          </td>
+          <td class="w150 center">
+            <span *ngIf="q.stock_type == 'สั่งผลิต(1D)'">{{ q.unit }}</span>
+            <mat-select
+              *ngIf="q.stock_type != 'สั่งผลิต(1D)'"
+              class="select"
+              [value]="q.product_unit"
+              placeholder="-- Select --"
+              (selectionChange)="unitChange(q, $event)"
+            >
+              <mat-option *ngFor="let item of units" [value]="item">
+                {{ item }}
+              </mat-option>
+            </mat-select>
+          </td>
+          <td class="w150">
+            <mat-select
+              class="select"
+              [(ngModel)]="q.location"
+              placeholder="-- Select --"
+              (selectionChange)="locationChange()"
+            >
+              <mat-option *ngFor="let item of locations" [value]="item">
+                {{ item }}
+              </mat-option>
+            </mat-select>
+          </td>
+        </tr>
+        <tr class="sub" *ngFor="let product of filterProduct(q._id)">
+          <!-- <td class="center"></td> -->
+          <td>
+            <div class="align">
+              <span class="w50 center">ขนาด</span>
+              <span class="w100 right">{{
+                product.width | number : ".2"
+              }}</span>
+              <span class="w50 center">x</span>
+              <span class="w100 right">{{
+                product.height | number : ".2"
+              }}</span>
+              <span class="w50 center">{{ q.product_unit }}</span>
+            </div>
+          </td>
+          <td class="center">{{ product.quantity }}</td>
+          <td class="w150 center">{{ product.unit }}</td>
+          <td class="w150"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="note-block">
+  <div>
+    <p>เอกสารอ้างอิง</p>
+    <div class="details-action">
+      <a *ngIf="!isedit_ref" (click)="onEdit('document_ref')"> แก้ไข </a>
+      <a *ngIf="isedit_ref" (click)="onSaveData('document_ref')"> บันทึก </a>
+      <a *ngIf="isedit_ref" (click)="onCancel('document_ref')"> ยกเลิก </a>
+    </div>
+    <quill-editor
+      [styles]="quillStyle"
+      [modules]="quillConfig.modules"
+      [disabled]="!isedit_ref"
+      [(ngModel)]="currentQuotationData.document_reference"
+      #document_ref
+    >
+    </quill-editor>
+  </div>
+  <div class="attach">
+    <p>รูปประกอบ/แบบ</p>
+    <div class="details-action">
+      <a (click)="openModal(modalUploadDocument)"> Browse </a>
+    </div>
+    <a
+      class="upload"
+      onclick="javascript:void(0)"
+      (click)="openModal(modalUploadDocument)"
+    >
+    </a>
+    <mat-table [dataSource]="dataSourceAttach" class="table">
+      <ng-container matColumnDef="document_name">
+        <mat-header-cell *matHeaderCellDef>ชื่อเอกสาร</mat-header-cell>
+        <mat-cell *matCellDef="let element" data-label="document_name">
+          <a
+            href="javascript:void(0)"
+            *ngIf="element.document"
+            (click)="onClickNewTab(getFileUrl(element.document!.filename))"
+          >
+            {{ element.document_name }}
+          </a>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element" data-label="action">
+          <button
+            class="delete"
+            type="button"
+            (click)="openModal(modalConfirmDeleteAttach, element)"
+            mat-raised-button
+            color="danger"
+          >
+            {{ "button.delete" | translate }}
+          </button>
+        </mat-cell>
+      </ng-container>
+      <!--
+      <mat-header-row
+        mat-header-row
+        *matHeaderRowDef="displayedAttachColumns"
+      ></mat-header-row> -->
+      <mat-row
+        mat-row
+        *matRowDef="let row; let element; columns: displayedAttachColumns"
+      ></mat-row>
+    </mat-table>
+  </div>
+  <div>
+    <p>หมายเหตุ</p>
+    <div class="details-action">
+      <a *ngIf="!isedit_remark" (click)="onEdit('remark')">แก้ไข</a>
+      <a *ngIf="isedit_remark" (click)="onSaveData('remark')"> บันทึก </a>
+      <a *ngIf="isedit_remark" (click)="onCancel('remark')">ยกเลิก</a>
+    </div>
+    <quill-editor
+      [styles]="quillStyle"
+      [modules]="quillConfig.modules"
+      [disabled]="!isedit_remark"
+      [(ngModel)]="currentQuotationData.remark"
+      #remark
+    >
+    </quill-editor>
+  </div>
+</div>
+
+<ng-template #modalAction>
+  <div class="modal-body text-center">
+    <div>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="exportAsPDF(false)"
+        *ngIf="!is_cancelled && currentQuotationData.stocks[0].location"
+      >
+        พิมพ์ใบสั่งผลิต
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="exportAsPDF(true)"
+        *ngIf="!is_cancelled && currentQuotationData.stocks[0].location"
+      >
+        ดาวน์โหลด
+      </button>
+      <!-- <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModalConfirm(modalConfirmProcess)"
+      >
+        กำลังผลิต
+      </button> -->
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModalConfirm(modalConfirmReady)"
+        *ngIf="!is_cancelled && currentQuotationData.stocks[0].location"
+      >
+        พร้อมส่ง
+      </button>
+
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModalConfirm(modalConfirmClose)"
+        *ngIf="!is_cancelled && currentQuotationData.stocks[0].location"
+      >
+        ปิดงาน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModalConfirm(modalConfirmCancel)"
+        *ngIf="!is_cancelled"
+      >
+        ยกเลิก
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="openModalConfirm(modalConfirmDelete)"
+        *ngIf="is_cancelled && isSuperAdmin"
+      >
+        ลบเอกสาร
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="decline()"
+      >
+        ปิด
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<button
+  class="display-none"
+  id="showModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="openModalConfirm(modalLoading)"
+>
+  X
+</button>
+<button
+  class="display-none"
+  id="hideModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="declineConfirm()"
+>
+  X
+</button>
+
+<ng-template #modalLoading>
+  <div class="modal-body text-center">
+    <div>
+      <p>กำลังดำเนินการ</p>
+    </div>
+  </div>
+</ng-template>
+
+<!-- <ng-template #modalConfirmProcess>
+  <div class="modal-body text-center">
+    <div>
+      <p>ยืนยันการกำลังผลิต?</p>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="onSaveData('status', jstatus.prcessing)"
+      >
+        ยืนยัน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="declineConfirm()"
+      >
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</ng-template> -->
+
+<ng-template #modalConfirmReady>
+  <div class="modal-body text-center">
+    <div>
+      <p>ยืนยันการพร้อมส่ง?</p>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="onSaveData('status', jstatus.ready)"
+      >
+        ยืนยัน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="declineConfirm()"
+      >
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmCancel>
+  <div class="modal-body text-center">
+    <div *ngIf="!is_saving">
+      <h5 class="ttl">เหตุผลการยกเลิก</h5>
+      <quill-editor
+        [styles]="quillStyle"
+        [modules]="quillConfig.modules"
+        [(ngModel)]="cancelRemark"
+        #cancel_remark
+      >
+      </quill-editor>
+      <button
+        class="cancel"
+        type="button"
+        (click)="declineConfirm()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onCancel('status')"
+        [disabled]="checkEmptyRemark()"
+        mat-raised-button
+        color="primary"
+      >
+      ยืนยัน
+      </button>
+    </div>
+    <div *ngIf="is_saving">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="declineConfirm()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmClose>
+  <div class="modal-body text-center">
+    <div>
+      <p>ยืนยันการปิดงาน?</p>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="onSaveData('status', jstatus.close)"
+      >
+        ยืนยัน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="declineConfirm()"
+      >
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div>
+      <p>ยืนยันการการลบใบสั่งผลิต?</p>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="onDeleteQuotation()"
+      >
+        ยืนยัน
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        mat-raised-button
+        color="secondary"
+        (click)="declineConfirm()"
+      >
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalUploadDocument>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataFormAttach" class="cmn-form">
+        <div class="common-field browse" (click)="fileInput.click()">
+          <p class="file-name">
+            {{
+              files.length > 0 ? files[0].name : "คลิ๊กที่นี่เพื่อเลือกเอกสาร"
+            }}
+          </p>
+          <input
+            hidden
+            type="file"
+            accept="*"
+            #fileInput
+            (change)="uploadFile($event.target.files)"
+          />
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveDataAttach()"
+        [disabled]="files.length == 0"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalConfirmDeleteAttach>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDeleteAttach()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+<!-- ************************************************************** PDF SECTION *************************************************** -->
+<div class="pdf-section-order">
+  <div id="topdf" class="pages">
+    <div class="page" *ngFor="let mainproduct of printProducts; let i = index">
+      <div class="half-box">
+        <div class="header">
+          <p class="main">{{ bindTitleOrCode(printStock) }}</p>
+          <div class="sub">
+            <p class="date">{{ currentQuotationData.onprogress_dateTxt }}</p>
+            <p class="quotation_code">
+              {{ currentQuotationData.quotation_code }}
+            </p>
+            <p
+              [ngClass]="{
+                factory: currentQuotationData.stocks[0].location == 'โรงงาน'
+              }"
+              class="location"
+            >
+              {{ currentQuotationData.stocks[0].location }}
+            </p>
+          </div>
+        </div>
+        <div class="tr">
+          <span>#</span>
+          <span class="size">ขนาด</span>
+          <span>จำนวน</span>
+          <span>หน่วย</span>
+        </div>
+        <div *ngFor="let product of mainproduct; let j = index">
+          <div class="td" *ngIf="printStock.stock_type == 'สั่งผลิต'">
+            <span>{{ i * 10 + (j + 1) }}</span>
+            <span class="size"
+              >{{ product.width | number : ".2" }} x
+              {{ product.height | number : ".2" }}
+              {{ printStock.product_unit }}</span
+            >
+            <span>{{ product.quantity }}</span>
+            <span>{{ product.unit }}</span>
+          </div>
+          <div class="td" *ngIf="printStock.stock_type == 'สั่งผลิต(1D)'">
+            <span>1</span>
+            <span class="size">{{ bindTitleOrCode(product) }}</span>
+            <span>{{ product.quantity }}</span>
+            <span>{{ product.unit }}</span>
+          </div>
+        </div>
+        <div class="remark">
+          <p *ngIf="currentQuotationData.remark" style="margin-bottom: 10px">
+            Note*
+          </p>
+          <div
+            [innerHTML]="
+              currentQuotationData.remark ? currentQuotationData.remark : ''
+            "
+          ></div>
+        </div>
+      </div>
+      <div class="half-box">
+        <div class="header">
+          <p class="main">{{ bindTitleOrCode(printStock) }}</p>
+          <div class="sub">
+            <p class="date">{{ currentQuotationData.onprogress_dateTxt }}</p>
+            <p class="quotation_code">
+              {{ currentQuotationData.quotation_code }}
+            </p>
+            <p
+              [ngClass]="{
+                factory: currentQuotationData.stocks[0].location == 'โรงงาน'
+              }"
+              class="location"
+            >
+              {{ currentQuotationData.stocks[0].location }}
+            </p>
+          </div>
+        </div>
+        <div class="tr">
+          <span>#</span>
+          <span class="size">ขนาด</span>
+          <span>จำนวน</span>
+          <span>หน่วย</span>
+        </div>
+        <div *ngFor="let product of mainproduct; let j = index">
+          <div class="td" *ngIf="printStock.stock_type == 'สั่งผลิต'">
+            <span>{{ i * 10 + (j + 1) }}</span>
+            <span class="size"
+              >{{ product.width | number : ".2" }} x
+              {{ product.height | number : ".2" }}
+              {{ printStock.product_unit }}</span
+            >
+            <span>{{ product.quantity }}</span>
+            <span>{{ product.unit }}</span>
+          </div>
+          <div class="td" *ngIf="printStock.stock_type == 'สั่งผลิต(1D)'">
+            <span>1</span>
+            <span class="size">{{ bindTitleOrCode(product) }}</span>
+            <span>{{ product.quantity }}</span>
+            <span>{{ product.unit }}</span>
+          </div>
+        </div>
+        <div class="remark">
+          <p *ngIf="currentQuotationData.remark" style="margin-bottom: 10px">
+            Note*
+          </p>
+          <div
+            [innerHTML]="
+              currentQuotationData.remark ? currentQuotationData.remark : ''
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="page" >
+    <div class="pdf-table-scroll-wrap">
+      <div *ngFor="let q of getProductByStockType()">
+        <div>
+          {{ q.title }} {{ q.stock_code }} {{ currentQuotationData.createdTxt }}
+        </div>
+        <div *ngFor="let product of filterProduct(q._id); let j = index">
+          {{ j + 1 }}. ขนาด {{ product.width }} x {{ product.height }}
+          {{ q.product_unit }} = {{ product.quantity }}
+          {{ product.unit }}
+        </div>
+        <quill-view-html
+          class="view-quill"
+          [content]="currentQuotationData.remark || ''"
+          theme="snow"
+        ></quill-view-html>
+      </div>
+      <div *ngFor="let q of getProductByStockType()">
+        <div>
+          {{ q.title }} {{ q.stock_code }} {{ currentQuotationData.createdTxt }}
+        </div>
+        <div *ngFor="let product of filterProduct(q._id); let j = index">
+          {{ j + 1 }}. ขนาด {{ product.width }} x {{ product.height }}
+          {{ q.product_unit }} = {{ product.quantity }}
+          {{ product.unit }}
+        </div>
+        <quill-view-html
+          class="view-quill"
+          [content]="currentQuotationData.remark || ''"
+          theme="snow"
+        ></quill-view-html>
+      </div>
+    </div>
+  </div>
+  -->
+</div>
+<!-- ************************ PDF SECTION END **************************** -->

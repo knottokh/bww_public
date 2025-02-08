@@ -1,0 +1,54 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "engines": {
+    "node": "12.16.0",
+    "npm": ">=6.13.4"
+  },
+  "keywords": [
+    "node",
+    "restful",
+    "api"
+  ],
+  "author": "KDUO",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/node": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "async": "^3.2.4",
+    "bcrypt": "^3.0.8",
+    "btoa": "^1.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "email-templates": "^7.0.2",
+    "excel-date-to-js": "^1.0.2",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "formidable": "^1.2.2",
+    "fs": "0.0.1-security",
+    "gridfs-stream": "^1.1.1",
+    "hbs": "^4.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mathjs": "^11.11.2",
+    "moment-timezone": "^0.5.27",
+    "mongodb-autoincrement": "^1.0.1",
+    "mongoose": "^5.8.13",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.2",
+    "multer-gridfs-storage": "^4.0.2",
+    "nodemailer": "^6.4.2",
+    "nodemailer-mailgun-transport": "^2.0.0",
+    "xlsx": "^0.15.6"
+  }
+}

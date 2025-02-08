@@ -1,0 +1,198 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.setting }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  / <span>{{ "setting.payment" | translate }}</span>
+</p>
+<div class="action-panel">
+  <!-- <p class="ttl">Filter</p>
+ <div class="filter">
+    <mat-radio-group [(ngModel)]="groupfilter" (change)="doFilter()">
+      <mat-radio-button value="">All</mat-radio-button>
+      <mat-radio-button *ngFor="let group of groups" [value]="group">{{ group }}</mat-radio-button>
+    </mat-radio-group>
+  </div> -->
+  <div class="ttl">จำนวน {{ dataSourceCount }} รายการ</div>
+  <p class="add">
+    <a href="javascript:void(0)" (click)="openModal(modalManageCategory)">
+      เพิ่ม
+    </a>
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="order">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="order">
+        <span *ngIf="i > 0" (click)="swapIndex(dataSource, i, i - 1)">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </span>
+        <span
+          *ngIf="i < dataSource.length - 1"
+          (click)="swapIndex(dataSource, i, i + 1)"
+        >
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </span>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.list" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title">{{
+        element.title
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <button
+          type="button"
+          (click)="onEdit(modalManageCategory, element)"
+          mat-raised-button
+          color="warning"
+        >
+          {{ "button.edit" | translate }}
+        </button>
+        <button
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalManageCategory>
+  <div class="modal-body text-center">
+    <div>
+      <form [formGroup]="dataForm" class="cmn-form">
+        <div class="common-field">
+          <h6>{{ "setting.header.list" | translate }}</h6>
+          <input
+            matInput
+            formControlName="title"
+            #title
+            [placeholder]="'setting.header.list' | translate"
+          />
+          <!--<span *ngIf="f['catname'].errors && f['catname'].errors.required">
+            {{ 'category.error.require-name' | translate }}
+          </span>-->
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>

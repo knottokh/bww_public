@@ -1,0 +1,42 @@
+$pm-color: #001654;
+
+.inner-wrap {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .editor-panel {
+    padding: 0;
+    box-sizing: border-box;
+    width: 50%;
+    margin: 0 auto;
+  }
+}
+
+.cmn-form {
+  .ttl {
+    .ttl-name {
+      width: 250px;
+    }
+  }
+}
+
+:host ::ng-deep .ql-toolbar {
+  display: none;
+}
+:host ::ng-deep .ql-container {
+  height: 100px !important;
+  border: none;
+  border-radius: 8px;
+  background: #f7f7f7;
+}
+
+@media (max-width: 1024px) {
+  .editor-panel {
+    width: 100% !important;
+  }
+  .cmn-btn {
+    margin-top: 10px;
+    justify-content: space-between;
+  }
+}

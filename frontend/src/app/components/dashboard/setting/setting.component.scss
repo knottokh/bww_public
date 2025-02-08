@@ -1,0 +1,107 @@
+$pm-color: #001654;
+$scd-color: #ffc700;
+$pm-font-color: #333;
+$scd-font-color: #333;
+
+h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: $pm-font-color;
+  margin-bottom: 20px;
+}
+.action-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .ttl {
+    font-weight: bold;
+    margin-right: 20px;
+    font-size: 1.2rem;
+  }
+  .filter {
+    border-radius: 8px;
+    padding: 10px 20px;
+    background-color: #efefef;
+  }
+  .add {
+    margin-left: auto;
+    a {
+      display: block;
+      border: 2px solid #ff3d00;
+      background: #ff3d00;
+      border-radius: 8px;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 20px;
+    }
+  }
+}
+.inner {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow-y: auto;
+}
+
+.cmn-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  li {
+    margin-bottom: 10px;
+    width: 100%;
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 500px;
+      height: 50px;
+      border-radius: 30px;
+      background-color: #ddd;
+      margin: 0 auto;
+      text-decoration: none;
+      color: $pm-color;
+      font-weight: bold;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.modal-body {
+  .common-field {
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+    align-items: stretch;
+    position: relative;
+    h6 {
+      width: 130px;
+      background: #efefef;
+      border-radius: 8px 0 0 8px;
+      padding: 10px 20px;
+      text-align: right;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    input,
+    mat-select {
+      background: #f7f7f7;
+      border-radius: 0 8px 8px 0;
+      border: none;
+      width: calc(100% - 130px);
+      padding: 10px 20px;
+      text-align: left;
+    }
+  }
+}

@@ -1,0 +1,151 @@
+<mat-sidenav-container fxFlexFill class="wrap hbox">
+  <mat-sidenav #sidenav [(mode)]="change" [(opened)]="opened">
+    <mat-nav-list class="side-bar" *ngIf="currentUser" fxShow="true">
+      <ul class="side-nav side-nav-feature">
+        <li>
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.customer }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/customer.png"
+              alt=""
+              srcset=""
+            />
+            <span>{{ "menu.customer" | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.quotation }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/quotation.png"
+              alt=""
+              srcset=""
+            />
+            <span>{{ "menu.quotation" | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.order }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/job.png"
+              alt=""
+              srcset=""
+            />
+            <span>{{ "menu.order" | translate }}</span>
+          </a>
+        </li>
+        <li class="pc-only">
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.purchase }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/shopping-cart.png"
+              alt=""
+              srcset=""
+            />
+            <span>ใบสั่งซื้อ</span>
+          </a>
+        </li>
+        <li *ngIf="isSuperAdmin" class="pc-only">
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.accounting }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/money-bag.png"
+              alt=""
+              srcset=""
+            />
+            <span>ชำระเงิน</span>
+          </a>
+        </li>
+        <li *ngIf="isSuperAdmin" class="pc-only">
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.warehouse }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/package.png"
+              alt=""
+              srcset=""
+            />
+            <span>คลังสินค้า</span>
+          </a>
+        </li>
+        <li *ngIf="isSuperAdmin" class="pc-only">
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.report }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/report.png"
+              alt=""
+              srcset=""
+            />
+            <span>{{ "menu.report" | translate }}</span>
+          </a>
+        </li>
+        <li *ngIf="isSuperAdmin" class="pc-only">
+          <a
+            class="side-li"
+            routerLink="/{{ routepath.setting }}"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            <img
+              class="pc-only"
+              src="assets/img/icon/setting.png"
+              alt=""
+              srcset=""
+            />
+            <span>{{ "menu.setting" | translate }}</span>
+          </a>
+        </li>
+      </ul>
+      <button (click)="this.opened = false" class="remove-btn mb-only">
+        <img src="assets/img/icon/remove.png" alt="" srcset="" />
+      </button>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content fxFlexFill class="main-panel">
+    <p class="user">
+      <span (click)="this.opened = true" class="hamburger mb-only"
+        ><img src="assets/img/icon/menu.png" alt="" srcset=""
+      /></span>
+      <span class="pc-only">สวัสดี {{ currentUser.fullname }} </span
+      ><a href="javascript:void(0)" (click)="logout()">{{
+        "menu.logout" | translate
+      }}</a>
+    </p>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,72 @@
+.printblock{
+  display: block;
+}
+.d-flex {
+  display: flex;
+  justify-content: flex-end;
+}
+.d-flex > div {
+}
+
+/*@media print {*/
+  .printblock{
+    page-break-after: always;
+    display: block;
+    margin-top: -20px;
+  }
+  .printblock:last-child { page-break-after: avoid; }
+  .d-flex {
+    height: 20px;
+    margin-bottom: 23px;
+  }
+  .d-flex > div {
+    position: relative;
+  }
+  .d-flex > div > p {
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 1;
+    display: block;
+  }
+  .d-flex > div:nth-child(1) p {
+    left: 160px;
+  }
+  .d-flex.line-01 { padding-bottom: 10px; padding-top: 4px; margin: 0;}
+    .d-flex.line-01 > div:nth-child(1) { flex: 1;}
+    .d-flex.line-01 > div:nth-child(1) p { left: unset; right: 120px;}
+  .d-flex.line-02 { margin-bottom: 46px; }
+    .d-flex.line-02 > div:nth-child(1) { flex: 1;}
+    .d-flex.line-02 > div:nth-child(1) p { left: unset; right: 120px;}
+  .d-flex.line-03 {}
+    .d-flex.line-03 > div:nth-child(1) { flex: 1;}
+    .d-flex.line-03 > div:nth-child(2) { flex: 1; left: 70px;}
+  .d-flex.line-04 {}
+    .d-flex.line-04 > div:nth-child(1) { flex: 1;}
+    .d-flex.line-04 > div:nth-child(2) { flex: 1; left: 80px;}
+  .d-flex.line-05 {}
+    .d-flex.line-05 > div { flex: 1;}
+    .d-flex.line-05 > div:nth-child(2) p { left: 95px;}
+    .d-flex.line-05 > div:nth-child(3) p { left: 100px;}
+    .d-flex.line-05 > div:nth-child(4) p { left: 140px;}
+    /*.d-flex.line-05 > div:nth-child(2) { flex: 2;}
+    .d-flex.line-05 > div:nth-child(2) p {}
+    .d-flex.line-05 > div:nth-child(3) { flex: 2;}
+    .d-flex.line-05 > div:nth-child(3) p {}
+    .d-flex.line-05 > div:nth-child(4) { flex: 2;}
+    .d-flex.line-05 > div:nth-child(4) p {}*/
+  .d-flex.line-06 {}
+    .d-flex.line-06 > div { flex: 1;}
+    .d-flex.line-06 > div:nth-child(2) { flex: 2;}
+    .d-flex.line-06 > div:nth-child(2) p { left: 95px;}
+    .d-flex.line-06 > div:nth-child(3) p { left: 100px;}
+    .d-flex.line-06 > div:nth-child(4) p { left: 140px;}
+
+  @page {
+    size: 200mm 140mm; /* landscape */
+    /* you can also specify margins here: */
+    margin: 4mm 4mm;
+    /*margin: 25mm;
+    margin-right: 45mm;  for compatibility with both A4 and Letter */
+  }
+/*}*/

@@ -1,0 +1,155 @@
+<!-- <app-nav-web-management></app-nav-web-management> -->
+<p class="reg-ttl">
+  <span>ลงทะเบียนข้อมูลลูกค้า (Customer Registration)</span>
+</p>
+<p class="reg-desc">
+  กรุณากรอกข้อมูลของบริษัท หรือชื่อของท่านให้ถูกต้อง<br />หากมีข้อสงสัยติดต่อไลน์
+  &#64;bkkww หรือโทร 02-219-4777, 02-219-4888
+</p>
+<div class="inner-wrap">
+  <div class="editor-panel">
+    <form #form="ngForm" [formGroup]="dataForm" class="cmn-form">
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.customer_name" | translate }} *</span
+        >
+        <input formControlName="customer_name" #customer_name placeholder="" />
+        <!-- <span *ngIf="( f['customer_name'].value == null || f['customer_name'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.dealer" | translate }}</span>
+        <input formControlName="dealer" #dealer placeholder="" />
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name"
+          >{{ "customer.header.phone" | translate }} *</span
+        >
+        <input formControlName="phone" #phone placeholder="" />
+        <!-- <span *ngIf="( f['phone'].value == null || f['phone'].value == '')">
+          Required
+        </span> -->
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.email" | translate }}</span>
+        <input formControlName="email" #email placeholder="" />
+      </p>
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.line" | translate }}</span>
+        <input formControlName="line" #line placeholder="" />
+      </p>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.shipping_detail_new" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="shipping_detail"
+            #shipping_detail
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.tax_address" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="tax_address"
+            #tax_address
+          >
+          </quill-editor>
+        </div>
+      </div>
+
+      <p class="common-field ttl">
+        <span class="ttl-name">{{ "customer.header.tax_id" | translate }}</span>
+        <input formControlName="tax_id" #tax_id placeholder="" />
+      </p>
+
+      <div class="common-field mix-input">
+        <div class="field-full-width">
+          <span class="ttl-name">{{
+            "customer.header.note_new" | translate
+          }}</span>
+          <quill-editor
+            [styles]="quillStyle"
+            [modules]="quillConfig.modules"
+            formControlName="note"
+            #note
+          >
+          </quill-editor>
+        </div>
+      </div>
+    </form>
+    <p class="cmn-btn">
+      <!-- <button
+        id="cancel"
+        type="button"
+        (click)="onBackto()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button> -->
+      <button
+        class="primary"
+        type="submit"
+        (click)="openModal(modalConfirmSave)"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+    </p>
+    <div *ngIf="error" class="alert alert-danger">
+      {{ "api." + error | translate }}
+    </div>
+    <div *ngIf="msgok" class="alert alert-success">
+      {{ "api." + msgok | translate }}
+    </div>
+  </div>
+</div>
+
+<ng-template #modalConfirmSave>
+  <div class="modal-body">
+    <div *ngIf="!loading">
+      <p class="img">
+        <img src="assets/img/icon/rubber-ring.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">บันทึก</h5>
+      <p class="desc">กรุณายืนยันครั้งสุดท้ายเพื่อบันทึกข้อมูล</p>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSubmit()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.confirm-publish" | translate }}
+      </button>
+    </div>
+    <div class="spiner-box" *ngIf="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+</ng-template>

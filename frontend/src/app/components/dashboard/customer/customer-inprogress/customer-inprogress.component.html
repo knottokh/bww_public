@@ -1,0 +1,120 @@
+<p class="cmn-breadcrumb">
+  <span>({{ currentData.customer_code }}) {{ currentData.customer_name }}</span>
+</p>
+<!-- <div class="customer-details">
+  <div>
+    <p>
+      {{ currentData.dealer && "คุณ" + currentData.dealer + " /" }}
+      {{ currentData.phone }}
+    </p>
+    <p>{{ currentData.email && "อีเมล์ : " + currentData.email }}</p>
+    <p>{{ currentData.line && "LINE@ : " + currentData.line }}</p>
+  </div>
+  <div>
+    <p>
+      ประเภทลูกค้า {{ currentData.customer_type }} /
+      {{ currentData.payment_type }}
+    </p>
+    <quill-view-html class="view-quill" [content]="currentData.payment_remark || ''" theme="snow"></quill-view-html>
+    <p>{{ currentData.shipping_type }}</p>
+    <quill-view-html class="view-quill" [content]="currentData.shipping_detail || ''" theme="snow"></quill-view-html>
+    <quill-view-html class="view-quill" [content]="currentData.note || ''" theme="snow"></quill-view-html>
+  </div>
+</div> -->
+
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="quotation_code">
+      <mat-header-cell *matHeaderCellDef>รายการ</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="quotation_code">{{
+        element.quotation_code
+      }}</mat-cell>
+    </ng-container> -->
+    <ng-container matColumnDef="quotation_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.list" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="quotation_code"
+        ><a
+          routerLink="/{{ routepath.customertaskdetail }}/{{ element.enc_id }}"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+          target="_blank"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a></mat-cell
+      >
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="document_type">
+      <mat-header-cell *matHeaderCellDef>ประเภทเอกสาร</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="document_type">{{
+        q_type[element.document_type]
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>สร้างวันที่</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container> -->
+
+    <ng-container matColumnDef="document_reference">
+      <mat-header-cell *matHeaderCellDef>เอกสารอ้างอิง</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="document_reference">
+        <quill-view-html
+          class="view-quill"
+          [innerHTML]="element.document_reference || ''"
+          theme="snow"
+        ></quill-view-html>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="remark">
+      <mat-header-cell *matHeaderCellDef>หมายเหตุ</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="remark">
+        <quill-view-html
+          class="view-quill"
+          [innerHTML]="element.remark || ''"
+          theme="snow"
+        ></quill-view-html>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>สถานะ</mat-header-cell>
+      <mat-cell
+        [ngClass]="{
+          ready: element.status === jstatus.ready
+        }"
+        *matCellDef="let element"
+        data-label="status"
+        >{{ element.status }}</mat-cell
+      >
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

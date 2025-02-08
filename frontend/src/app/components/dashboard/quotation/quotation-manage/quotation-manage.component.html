@@ -1,0 +1,410 @@
+<p class="cmn-breadcrumb">
+  <a
+    (click)="onBackto()"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  /
+  <span *ngIf="dataSourceQuotation === undefined"
+    >({{ currentCustomerData.customer_code }})
+    {{ currentCustomerData.customer_name }}</span
+  >
+  <span *ngIf="dataSourceQuotation !== undefined"
+    >{{ dataSourceQuotation.quotation_code }} ({{
+      currentCustomerData.customer_name
+    }}) -
+    {{ moment(dataSourceQuotation.created).format("DD/MM/YYYY hh:mm") }}
+    น.</span
+  >
+</p>
+
+<div class="inner">
+  <div class="combo-table">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>รายการ / ขนาด</th>
+          <th>จำนวน</th>
+          <th>หน่วย</th>
+          <th>ราคา(บาท)</th>
+          <th class="currency">ราคารวม(บาท)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let quotationDetail of dataSource; let i = index">
+          <tr class="primary">
+            <td>
+              <span *ngIf="i > 0" (click)="swapIndex(dataSource, i, i - 1)">
+                <mat-icon>keyboard_arrow_up</mat-icon>
+              </span>
+              <span
+                *ngIf="i < dataSource.length - 1"
+                (click)="swapIndex(dataSource, i, i + 1)"
+              >
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </span>
+            </td>
+            <td>{{ i + 1 }}</td>
+            <!-- <td>
+            <mat-select
+              name="stock_product"
+              placeholder="-- Select --"
+              [value]="quotationDetail.title"
+              (selectionChange)="onStockProductChange($event, i)"
+              class="select"
+            >
+              <mat-option
+                *ngFor="let option of stockDataSource"
+                [value]="option.title"
+              >
+                {{ option.title }}
+              </mat-option>
+            </mat-select>
+          </td> -->
+            <td>
+              <input
+                *ngIf="quotationDetail.stock_code == ''"
+                [(ngModel)]="quotationDetail.title"
+                type="text"
+                (click)="openModal(modalSeachStock); selectedStockIndex = i"
+              />
+              <input
+                *ngIf="quotationDetail.stock_code != ''"
+                [(ngModel)]="quotationDetail.title"
+                type="text"
+              />
+            </td>
+            <td>
+              <input
+                *ngIf="quotationDetail.stock_type != qStockType.order"
+                [(ngModel)]="quotationDetail.quantity"
+                type="number"
+              />
+              <p *ngIf="quotationDetail.stock_type == qStockType.order"></p>
+            </td>
+            <td>
+              <input
+                *ngIf="quotationDetail.stock_type != qStockType.order"
+                [(ngModel)]="quotationDetail.unit"
+              />
+              <mat-select
+                class="select"
+                [value]="quotationDetail.product_unit"
+                *ngIf="quotationDetail.stock_type == qStockType.order"
+                (selectionChange)="unitChange($event, i)"
+                placeholder="-- Select --"
+              >
+                <mat-option *ngFor="let item of units" [value]="item">
+                  {{ item }}
+                </mat-option>
+              </mat-select>
+            </td>
+            <!-- <td *ngIf="quotationDetail.stock_type != qStockType.order1D">
+            {{ quotationDetail.price | number : ".2" }}
+          </td> -->
+            <!-- price in case order1D -->
+            <td>
+              <input [(ngModel)]="quotationDetail.price" type="number" />
+            </td>
+            <td>
+              <div
+                *ngIf="quotationDetail.stock_type == qStockType.order"
+                class="cmn-btn"
+              >
+                <button class="primary" (click)="calculate(quotationDetail)">
+                  คำนวน
+                </button>
+              </div>
+              <p
+                class="currency"
+                *ngIf="
+                  quotationDetail.stock_type == qStockType.normal ||
+                  quotationDetail.stock_type == qStockType.order1D
+                "
+              >
+                {{
+                  quotationDetail.quantity * quotationDetail.price
+                    | number : ".2"
+                }}
+              </p>
+            </td>
+            <td>
+              <button
+                class="remove-btn"
+                (click)="removeStock(i, quotationDetail)"
+              >
+                <img src="assets/img/icon/remove.png" alt="" srcset="" />
+              </button>
+            </td>
+          </tr>
+          <!-- loop show sub product -->
+          <ng-container *ngIf="quotationDetail.products.length > 0">
+            <tr
+              *ngFor="
+                let sub_product of quotationDetail.products;
+                let pi = index
+              "
+              class="sub"
+            >
+              <td>
+                <span
+                  *ngIf="pi > 0"
+                  (click)="swapIndex(quotationDetail.products, pi, pi - 1)"
+                >
+                  <mat-icon>keyboard_arrow_up</mat-icon>
+                </span>
+                <span
+                  *ngIf="pi < quotationDetail.products.length - 1"
+                  (click)="swapIndex(quotationDetail.products, pi, pi + 1)"
+                >
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </span>
+              </td>
+              <td></td>
+              <td>
+                ขนาด <input [(ngModel)]="sub_product.width" type="number" /> x
+                <input [(ngModel)]="sub_product.height" type="number" />{{
+                  " " + quotationDetail.product_unit
+                }}
+              </td>
+              <td>
+                <input [(ngModel)]="sub_product.quantity" type="number" />
+              </td>
+              <td>
+                <input [(ngModel)]="sub_product.unit" />
+              </td>
+              <!-- <td>
+              <input
+                [(ngModel)]="sub_product.unit"
+                [matAutocomplete]="autoUnit"
+              /><mat-autocomplete #autoUnit="matAutocomplete">
+                <mat-option *ngFor="let option of unitOptions" [value]="option">
+                  {{ option }}
+                </mat-option>
+              </mat-autocomplete>
+            </td> -->
+              <td><input [(ngModel)]="sub_product.price" type="number" /></td>
+              <td class="currency">
+                {{ sub_product.quantity * sub_product.price | number : ".2" }}
+              </td>
+              <td>
+                <button
+                  class="remove-btn"
+                  (click)="removeProduct(i, pi, sub_product)"
+                >
+                  <img src="assets/img/icon/remove.png" alt="" srcset="" />
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+          <tr class="add" *ngIf="quotationDetail.stock_type === 'สั่งผลิต'">
+            <td [colSpan]="8">
+              <div class="cmn-btn">
+                <button
+                  class="secondary"
+                  style="width: 100%"
+                  (click)="addProduct(quotationDetail)"
+                >
+                  + เพิ่มขนาด
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+        <tr class="add">
+          <td [colSpan]="8">
+            <div class="cmn-btn">
+              <button
+                class="secondary"
+                style="width: 100%"
+                (click)="addStock()"
+              >
+                + เพิ่มรายการ
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cmn-btn">
+    <button id="cancel" mat-raised-button color="primary" (click)="onBackto()">
+      {{ "button.cancel" | translate }}
+    </button>
+    <button
+      class="primary"
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      disabled="{{ loading }}"
+    >
+      {{ "button.save" | translate }}
+    </button>
+  </div>
+</div>
+
+<ng-template #modalSeachStock>
+  <div class="modal-body text-center">
+    <div class="action-panel">
+      <div class="search">
+        <div class="filter">
+          <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+            <mat-option value="stock_code">รหัสสินค้า</mat-option>
+            <mat-option value="title">ชื่อสินค้า</mat-option>
+          </mat-select>
+          <input
+            (input)="onSearchChange($event.target.value)"
+            placeholder="Enter text here"
+            id="itemselect"
+          />
+        </div>
+      </div>
+      <p class="action">
+        <button class="remove-btn" (click)="decline()">
+          <img src="assets/img/icon/remove.png" alt="" srcset="" />
+        </button>
+      </p>
+    </div>
+
+    <div>
+      <table class="combo-table">
+        <tr class="sub" *ngFor="let searchStock of searchStockList">
+          <td>{{ searchStock.stock_code }}</td>
+          <td>{{ searchStock.title }}</td>
+          <td>
+            <div class="cmn-btn">
+              <button class="primary" (click)="onStockSelect(searchStock)">
+                เลือก
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <!-- <form [formGroup]="dataForm" class="cmn-form">
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_code" | translate }}</h6>
+          <input
+            matInput
+            formControlName="stock_code"
+            #stock_code
+            [placeholder]="'setting.header.stock_code' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_title" | translate }}</h6>
+          <input
+            matInput
+            formControlName="title"
+            #title
+            [placeholder]="'setting.header.stock_title' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.stock_type" | translate }}</h6>
+          <mat-select formControlName="stock_type" placeholder="-- Select --">
+            <mat-option *ngFor="let item of stocktypes" [value]="item">
+              {{ item }}
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.price" | translate }}</h6>
+          <input
+            matInput
+            formControlName="price"
+            #price
+            type="number"
+            [placeholder]="'setting.header.price' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.unit" | translate }}</h6>
+          <input
+            matInput
+            formControlName="unit"
+            #unit
+            [placeholder]="'setting.header.unit' | translate"
+            [matAutocomplete]="autoUnit"
+          />
+          <mat-autocomplete #autoUnit="matAutocomplete">
+            <mat-option
+              *ngFor="let option of filterunitOptions | async"
+              [value]="option"
+            >
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_code" | translate }}</h6>
+          <input
+            matInput
+            formControlName="product_code"
+            #product_code
+            [placeholder]="'setting.header.product_code' | translate"
+          />
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_unit" | translate }}</h6>
+          <mat-select formControlName="product_unit" placeholder="-- Select --">
+            <mat-option *ngFor="let item of units" [value]="item">
+              {{ item }}
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="common-field">
+          <h6>{{ "setting.header.product_weight" | translate }}</h6>
+          <input
+            matInput
+            formControlName="product_weight"
+            #product_weight
+            type="number"
+            [placeholder]="'setting.header.product_weight' | translate"
+          />
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div> -->
+    </div>
+  </div>
+</ng-template>

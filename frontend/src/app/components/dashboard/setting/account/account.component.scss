@@ -1,0 +1,16 @@
+mat-pass-toggle-visibility {
+  position: absolute;
+  right: 10px;
+  top: -6px;
+}
+
+.modal-body {
+  .common-field {
+    h6 {
+      width: 150px;
+    }
+    input {
+      width: calc(100% - 150px);
+    }
+  }
+}

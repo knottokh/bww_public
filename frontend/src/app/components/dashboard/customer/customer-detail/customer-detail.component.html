@@ -1,0 +1,311 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.customer }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  /
+  <span>({{ currentData.customer_code }}) {{ currentData.customer_name }}</span>
+</p>
+<div class="customer-details pc-only">
+  <div>
+    <p>
+      {{ currentData.dealer && "คุณ" + currentData.dealer + " /" }}
+      {{ currentData.phone }}
+    </p>
+    <p>{{ currentData.email && "อีเมล์ : " + currentData.email }}</p>
+    <p>{{ currentData.line && "LINE@ : " + currentData.line }}</p>
+    <a
+      routerLink="/{{ routepath.customer }}/{{ paramId }}/attachment"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span
+        >เอกสารแนบ ({{
+          currentData.documents ? currentData.documents.length : ""
+        }})</span
+      >
+    </a>
+  </div>
+  <div>
+    <p>
+      ประเภทลูกค้า {{ currentData.customer_type }} /
+      {{ currentData.payment_type }}
+    </p>
+    <quill-view-html
+      class="view-quill"
+      [content]="currentData.payment_remark || ''"
+      theme="snow"
+    ></quill-view-html>
+    <!-- <div >{{ currentData.payment_remark }}</div> -->
+    <p>{{ currentData.shipping_type }}</p>
+    <quill-view-html
+      class="view-quill"
+      [content]="currentData.shipping_detail || ''"
+      theme="snow"
+    ></quill-view-html>
+    <quill-view-html
+      class="view-quill"
+      [content]="currentData.note || ''"
+      theme="snow"
+    ></quill-view-html>
+    <!-- <div>{{ currentData.shipping_detail }}</div>
+    <div>{{ currentData.note }}</div> -->
+    <div class="details-action">
+      <a
+        routerLink="/{{ routepath.customer }}/{{ paramId }}"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: false }"
+      >
+        แก้ไข
+      </a>
+      <a
+        *ngIf="isSuperAdmin"
+        onclick="javascript:void(0)"
+        (click)="openModal(modalConfirmDelete)"
+      >
+        ลบลูกค้า
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl pc-only">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="documenttype" placeholder="-- Select --">
+        <mat-option value="">แสดงทั้งหมด</mat-option>
+        <mat-option value="q">ใบเสนอราคา</mat-option>
+        <mat-option value="j">ใบสั่งผลิต</mat-option>
+      </mat-select>
+      <input
+        [(ngModel)]="searchtext"
+        (keyup.enter)="onSearchClick()"
+        #titleen
+        placeholder=""
+      />
+      <a onclick="javascript:void(0)" (click)="onSearchClick()">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="action">
+    <input
+      style="display: none"
+      [(ngModel)]="clipboardurl"
+      #cplink
+      placeholder=""
+    />
+    <a
+      class="pc-only"
+      *ngIf="clipboardurl"
+      onclick="javascript:void(0)"
+      (click)="openModal(modalClipboard)"
+      [cdkCopyToClipboard]="clipboardurl"
+    >
+      <span>แชร์ออเดอร์คงค้าง</span>
+    </a>
+    <!-- <a
+      routerLink="/{{ routepath.customer }}/{{ paramId }}/sharelink"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span>ลิงค์แชร์โปรไฟล์ลูกค้า</span>
+    </a> -->
+    <a
+      routerLink="/{{ routepath.quotation }}/{{ paramId }}/new"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span>สร้างใบเสนอราคา</span>
+    </a>
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="quotation_code">
+      <mat-header-cell *matHeaderCellDef>รายการ</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="quotation_code">
+        <a
+          routerLink="/{{
+            element.document_type == 'j'
+              ? routepath.order + '/' + paramId + '/' + element._id
+              : routepath.quotation + '/' + element._id + '/view'
+          }}"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="document_type">
+      <mat-header-cell *matHeaderCellDef>ประเภทเอกสาร</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="document_type">{{
+        q_type[element.document_type]
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>สร้างวันที่</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>สถานะ</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="status">{{
+        element.status
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>รหัสสินค้า</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="remark">
+      <mat-header-cell *matHeaderCellDef>หมายเหตุ</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="remark"
+        ><quill-view-html
+          class="view-quill"
+          [content]="element.remark || ''"
+          theme="snow"
+        ></quill-view-html
+      ></mat-cell>
+    </ng-container> -->
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalClipboard>
+  <div class="modal-body text-center">
+    <div>
+      <p class="img">
+        <img src="assets/img/icon/crab.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">Ctrl + V เพื่อส่งลิงค์ให้ลูกค้าได้เลย!</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        ปิด
+      </button>
+    </div>
+  </div>
+</ng-template>
+<!--
+<button
+  class="display-none"
+  id="showModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="openModal(modalCopy)"
+>
+  X
+</button>
+<button
+  class="display-none"
+  id="hideModalLoading"
+  type="button"
+  mat-raised-button
+  color="secondary"
+  (click)="decline()"
+>
+  X
+</button>
+
+<ng-template #modalCopy>
+  <div class="modal-body text-center">
+    <div>
+      <p>กำลังสร้างลิงค์</p>
+    </div>
+  </div>
+</ng-template> -->

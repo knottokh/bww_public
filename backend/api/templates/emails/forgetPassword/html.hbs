@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forget Password Email</title>
+</head>
+<body>
+    <div class="email-box">
+        <div class="wrap-box">
+            <h3>Dear {{name}},</h3>
+            <p>You requested for a password reset, kindly use the link below to reset your password</p>
+            <p><a class="button" href="{{url}}">Reset your password</a></p>
+        </div>
+        <div class="signature-box">
+            <p class="logo"><img width="100" src="http://kduocorps.com/gouni/assets/img/gouni_logo@2x.png" alt=""></p>
+            <p>
+                <span class="bold red">GoUni Company Limited.</span><br>
+                THAILAND : +66 (0) 21634620, +66 (0) 933230500, info@gouni.co.th<br>
+                UK : +44 (0) 20 3735 7100, admin@gouni.co.uk
+            </p>
+        </div>
+    </div>
+    <style>
+        .email-box {
+            box-sizing: border-box;
+        }
+        .wrap-box {
+            background: #eee;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            margin: 20px;
+            color: #333 !important;
+        }
+        .wrap-box .button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background-color: #fa2a00;
+            color: #fff;
+            margin-top: 10px;
+        }
+        .wrap-box .bold { font-weight: bold;}
+        .wrap-box .red { color: #fa2a00;}
+        .signature-box {
+            margin: 20px;
+        }
+    </style>
+</body>
+</html>

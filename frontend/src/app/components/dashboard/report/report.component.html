@@ -1,0 +1,559 @@
+<div class="action-panel">
+  <div class="search">
+    <p class="ttl">ค้นหา</p>
+    <div class="filter">
+      <mat-select [(ngModel)]="searchtype" placeholder="-- Select --">
+        <mat-option value="per_customer">แบบรายลูกค้า</mat-option>
+        <mat-option value="groupby_customer_name"
+          >แบบ Group by ชื่อลูกค้า</mat-option
+        >
+      </mat-select>
+      <input
+        [(ngModel)]="searchCustomerText"
+        #titleen
+        (click)="openModal(modalSeachCustomer)"
+      />
+      <a onclick="javascript:void(0)" (click)="onSearchClick()">
+        <span>ค้นหา</span>
+      </a>
+      <a onclick="javascript:void(0)" (click)="resetClick()">
+        <span>รีเซ็ต</span>
+      </a>
+      <mat-radio-group [(ngModel)]="durationSelected">
+        <mat-radio-button value="monthNow">เดือนนี้</mat-radio-button>
+        <mat-radio-button value="yearNow">ปีนี้</mat-radio-button>
+        <mat-radio-button value="range">ช่วงเวลาที่เลือกเอง</mat-radio-button>
+      </mat-radio-group>
+
+      <!-- For update quotation approve all -->
+      <!-- <a onclick="javascript:void(0)" (click)="onEditApproveAllClick()">
+        <span>Edit Approve All</span>
+      </a> -->
+
+      <!-- For update quotation not have total_price, total_quantity -->
+      <a
+        *ngIf="currentUser.role === 'superadmin'"
+        onclick="javascript:void(0)"
+        (click)="onUpdateTotalClick()"
+      >
+        <span>Update total all</span>
+      </a>
+    </div>
+
+    <div class="filter">
+      <mat-select [(ngModel)]="y_axis_type" placeholder="-- Select --">
+        <mat-option value="quotation_approve_no"
+          >จำนวนใบเสนอราคาที่อนุมัติ</mat-option
+        >
+        <mat-option value="quotation_approve_amount"
+          >ยอดรวมใบเสนอราคาที่อนุมัติ</mat-option
+        >
+      </mat-select>
+    </div>
+    <div *ngIf="durationSelected === 'range'">
+      <mat-form-field>
+        <input
+          matInput
+          [placeholder]="'Choose a date'"
+          [satDatepicker]="picker"
+          [value]="dateRangeDisp"
+          (dateChange)="saveDate($event)"
+        />
+        <sat-datepicker
+          #picker
+          [rangeMode]="true"
+          [rangeHoverEffect]="false"
+        ></sat-datepicker>
+        <sat-datepicker-toggle matSuffix [for]="picker"></sat-datepicker-toggle>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <p class="action">
+    <a href="javascript:void(0)" (click)="exportExcel()"> ดาวน์โหลด </a>
+    <button
+      id="hiddenBtnExport"
+      style="display: none"
+      type="button"
+      (click)="
+        exporter.exportTable('xlsx', {
+          fileName: 'รายการใบแจ้งหนี้',
+          sheet: 'data'
+        })
+      "
+      mat-button
+    >
+      Hidden Export Excel
+    </button>
+  </p>
+  <!-- export table -->
+  <mat-table
+    style="display: none"
+    id="export_table"
+    class="common-table"
+    [dataSource]="exportDataSource"
+    matTableExporter
+    #exporter="matTableExporter"
+    sheetName="quotation list"
+    fileName="รายงานใบแจ้งหนี้"
+    (exportCompleted)="hideExportDlg()"
+  >
+    <ng-container *ngIf="reportType === 'per_customer'" matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.created" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'per_customer'"
+      matColumnDef="quotation_code"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.quotation_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="quotation_code">{{
+        element.quotation_code
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'per_customer'"
+      matColumnDef="product_code"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef>ยอดรวม</mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'per_customer'"
+      matColumnDef="total_quantity"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.total_quantity" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_quantity">{{
+        element.total_quantity
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'per_customer'"
+      matColumnDef="createdby"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.createdby" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="createdby">{{
+        element.createdby
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'per_customer'"
+      matColumnDef="total_price"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.total_price" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_price">{{
+        element.total_price
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef>{{
+        reportTotalPrice
+      }}</mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'groupby_customer_name'"
+      matColumnDef="customer_code"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.customer_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_code">{{
+        element.customer_code
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'groupby_customer_name'"
+      matColumnDef="customer_name"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.customer_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_name">{{
+        element.customer_name
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container
+      *ngIf="reportType === 'groupby_customer_name'"
+      matColumnDef="total_quantity"
+    >
+      <mat-header-cell *matHeaderCellDef>{{
+        y_axis_type === "quotation_approve_amount"
+          ? ("report.header.quotation_total_price" | translate)
+          : ("report.header.quotation_total_quantity" | translate)
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_quantity">{{
+        element.total_quantity
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef>555</mat-footer-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="exportColumns"
+    ></mat-header-row>
+    <mat-row mat-row *matRowDef="let row; columns: exportColumns"></mat-row>
+    <mat-footer-row
+      mat-footer-row
+      *matFooterRowDef="exportColumns"
+    ></mat-footer-row>
+  </mat-table>
+</div>
+
+<div class="inner">
+  <!-- <google-chart
+  [title]="chart.title"
+  [type]="chart.type"
+  [data]="chart.data"
+  [columns]="chart.columnNames"
+  [options]="chart.options"
+> -->
+  <div *ngIf="reportData.length > 0">
+    <google-chart
+      [title]="reportHeader"
+      type="LineChart"
+      [data]="reportData"
+      [columns]="columnNames"
+      [options]="chartOptions"
+      [width]="800"
+      [height]="400"
+    ></google-chart>
+  </div>
+  <div *ngIf="reportData.length == 0">
+    <p>No report data found!</p>
+  </div>
+
+  <mat-table
+    *ngIf="reportType === 'per_customer'"
+    [dataSource]="quotationCurrentDataSource"
+    class="table"
+  >
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.created" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="created">{{
+        element.created
+      }}</mat-cell>
+    </ng-container> -->
+
+    <ng-container matColumnDef="approved">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.approved" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="approved">{{
+        element.approved
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.quotation_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="title"
+        ><a
+          routerLink="/{{ routepath.quotation }}/{{ element._id }}/view"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span>{{ element.quotation_code }}</span>
+        </a></mat-cell
+      >
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="product_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.product_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="product_code">{{
+        element.product_code
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef>ยอดรวม</mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="total_quantity">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.total_quantity" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_quantity">{{
+        element.total_quantity
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="createdby">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.createdby" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="createdby">{{
+        element.createdby
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="total_price">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.total_price" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_price">{{
+        element.total_price
+      }}</mat-cell>
+      <mat-footer-cell *matFooterCellDef>{{
+        calculateTotalPrice()
+      }}</mat-footer-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>{{
+        "quotation.header.status" | translate
+      }}</mat-header-cell>
+      <mat-cell
+        [ngClass]="{
+          approved: element.status === qstatus.ordered,
+          cancelled: element.status === qstatus.cancel
+        }"
+        *matCellDef="let element"
+        data-label="status"
+        >{{ element.status }}</mat-cell
+      >
+    </ng-container> -->
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+    <mat-footer-row
+      mat-footer-row
+      *matFooterRowDef="displayedColumns"
+    ></mat-footer-row>
+  </mat-table>
+
+  <!-- group by -->
+  <mat-table
+    *ngIf="reportType === 'groupby_customer_name'"
+    [dataSource]="quotationCurrentDataSource"
+    class="table"
+  >
+    <ng-container matColumnDef="customer_code">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.customer_code" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_code">{{
+        element.customer_code
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="customer_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "report.header.customer_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="customer_name">{{
+        element.customer_name
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="total">
+      <mat-header-cell *matHeaderCellDef>{{
+        y_axis_type === "quotation_approve_amount"
+          ? ("report.header.quotation_total_price" | translate)
+          : ("report.header.quotation_total_quantity" | translate)
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="total_quantity">{{
+        element.total_quantity
+      }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedGroupColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedGroupColumns"
+    ></mat-row>
+  </mat-table>
+
+  <mat-paginator
+    #paginator
+    [pageSizeOptions]="[10, 50, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+  <!-- <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination> -->
+</div>
+
+<button
+  id="hiddenExportingShow"
+  style="display: none"
+  (click)="openModalAlert(modalExporting)"
+>
+  {{ "message.button.send-agian" | translate }}
+</button>
+<button id="hiddenExportingHide" style="display: none" (click)="declineAlert()">
+  {{ "message.button.send-agian" | translate }}
+</button>
+
+<ng-template #modalExporting>
+  <div class="modal-alert">
+    <div class="modal-title">
+      กำลังดาวน์โหลด
+      <button
+        type="button"
+        class="close pull-right"
+        aria-label="Close"
+        (click)="declineAlert()"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body" *ngIf="percenLoading == 100">
+      <svg
+        version="1.1"
+        id="L6"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        viewBox="0 0 100 100"
+        enable-background="new 0 0 100 100"
+        xml:space="preserve"
+      >
+        <rect
+          fill="none"
+          stroke="#AF0830"
+          stroke-width="4"
+          x="25"
+          y="25"
+          width="50"
+          height="50"
+        >
+          <animateTransform
+            attributeName="transform"
+            dur="0.5s"
+            from="0 50 50"
+            to="180 50 50"
+            type="rotate"
+            id="strokeBox"
+            attributeType="XML"
+            begin="rectBox.end"
+          />
+        </rect>
+        <rect x="27" y="27" fill="#AF0830" width="46" height="50">
+          <animate
+            attributeName="height"
+            dur="1.3s"
+            attributeType="XML"
+            from="50"
+            to="0"
+            id="rectBox"
+            fill="freeze"
+            begin="0s;strokeBox.end"
+          />
+        </rect>
+      </svg>
+      <p class="desc">File Creating</p>
+      <div class="btn-wrap">
+        <button class="scnd-btn" type="button" (click)="declineAlert()">
+          Close
+        </button>
+      </div>
+    </div>
+    <div class="modal-body" *ngIf="percenLoading !== 100">
+      Getting Data {{ percenLoading }} / 100
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalSeachCustomer>
+  <div class="modal-body text-center">
+    <div class="action-panel">
+      <div class="search">
+        <div class="filter">
+          <mat-select
+            [(ngModel)]="searchCustomerBy"
+            placeholder="-- Select --"
+            onchange="onSearchCustomerBySelect($event.value)"
+          >
+            <mat-option value="customer_code">รหัสลูกค้า</mat-option>
+            <mat-option value="customer_name">ชื่อลูกค้า</mat-option>
+          </mat-select>
+          <input
+            (input)="searchCustomer($event.target.value)"
+            placeholder="Enter text here"
+            [(ngModel)]="inputSearchText"
+          />
+        </div>
+      </div>
+      <p class="action">
+        <button class="remove-btn" (click)="decline()">
+          <img src="assets/img/icon/remove.png" alt="" srcset="" />
+        </button>
+      </p>
+    </div>
+    <div>
+      <table class="combo-table">
+        <tr class="sub" *ngFor="let searchCustomer of searchCustomerList">
+          <td>{{ searchCustomer.customer_code }}</td>
+          <td>{{ searchCustomer.customer_name }}</td>
+          <td>
+            <div class="cmn-btn">
+              <button
+                class="primary"
+                (click)="onCustomerSelect(searchCustomer)"
+              >
+                เลือก
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,282 @@
+<p class="cmn-breadcrumb">
+  <a
+    routerLink="/{{ routepath.setting }}"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: false }"
+  >
+    <span>{{ "setting.back" | translate }}</span>
+  </a>
+  / <span>{{ "setting.seller" | translate }}</span>
+</p>
+<div class="action-panel">
+  <div class="ttl">จำนวน {{ dataSourceCount }} รายการ</div>
+  <p class="add">
+    <a href="javascript:void(0)" (click)="openModal(modalManageCategory)">
+      เพิ่ม
+    </a>
+  </p>
+</div>
+<div class="inner">
+  <mat-table [dataSource]="dataSource" class="table">
+    <ng-container matColumnDef="seq">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="No">
+        {{ i + 1 }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="order">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" data-label="order">
+        <span *ngIf="i > 0" (click)="swapIndex(dataSource, i, i - 1)">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </span>
+        <span
+          *ngIf="i < dataSource.length - 1"
+          (click)="swapIndex(dataSource, i, i + 1)"
+        >
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </span>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="seller_name">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.seller_name" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="seller_name">{{
+        element.seller_name
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="phone">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.phone" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="phone">{{
+        element.phone
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="payment_type">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.payment_type" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="payment_type">{{
+        element.payment_type
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="seller_type">
+      <mat-header-cell *matHeaderCellDef>{{
+        "setting.header.seller_type" | translate
+      }}</mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="seller_type">{{
+        element.seller_type
+      }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" data-label="action">
+        <button
+          type="button"
+          (click)="onEdit(modalManageCategory, element)"
+          mat-raised-button
+          color="warning"
+        >
+          {{ "button.edit" | translate }}
+        </button>
+        <button
+          class="delete"
+          type="button"
+          (click)="openModal(modalConfirmDelete, element)"
+          mat-raised-button
+          color="danger"
+        >
+          {{ "button.delete" | translate }}
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+    ></mat-header-row>
+    <mat-row
+      mat-row
+      *matRowDef="let row; let element; columns: displayedColumns"
+    ></mat-row>
+  </mat-table>
+  <app-pagination
+    class="pagination"
+    [perPage]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="dataSourceCount"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+
+<ng-template #modalConfirmDelete>
+  <div class="modal-body text-center">
+    <div *ngIf="!deleteResult">
+      <p class="img">
+        <img src="assets/img/icon/open-book.png" alt="" srcset="" />
+      </p>
+      <h5 class="ttl">ยืนยันการลบรายการ</h5>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.cancel" | translate }}
+      </button>
+      <button
+        class="delete"
+        id="submit"
+        type="submit"
+        (click)="onDelete()"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.delete" | translate }}
+      </button>
+    </div>
+    <div *ngIf="deleteResult">
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <p class="img">
+        <img src="assets/img/icon/reading.png" alt="" srcset="" />
+      </p>
+      <div *ngIf="dlgerror" class="desc">
+        {{ "api.error." + dlgerror | translate }}
+      </div>
+      <button
+        class="cancel"
+        *ngIf="dlgerror"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalManageCategory>
+  <div class="modal-body editor-modal text-center">
+    <div>
+      <form #form="ngForm" [formGroup]="dataForm" class="cmn-form">
+        <div class="common-field">
+          <h6>{{ "setting.header.seller_name" | translate }}</h6>
+          <input
+            matInput
+            formControlName="seller_name"
+            #seller_name
+            [placeholder]="'setting.header.seller_name' | translate"
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.dealer" | translate }}</h6>
+          <input
+            matInput
+            formControlName="dealer"
+            #dealer
+            [placeholder]="'setting.header.dealer' | translate"
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.phone" | translate }}</h6>
+          <input
+            matInput
+            formControlName="phone"
+            #phone
+            [placeholder]="'setting.header.phone' | translate"
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.email" | translate }}</h6>
+          <input
+            matInput
+            formControlName="email"
+            #email
+            [placeholder]="'setting.header.email' | translate"
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.line" | translate }}</h6>
+          <input
+            matInput
+            formControlName="line"
+            #line
+            [placeholder]="'setting.header.line' | translate"
+          />
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.seller_type" | translate }}</h6>
+          <mat-select formControlName="seller_type" placeholder="-- Select --">
+            <mat-option value="VAT">VAT</mat-option>
+            <mat-option value="NO VAT">NO VAT</mat-option>
+            <mat-option value="VAT Included">VAT Included</mat-option>
+          </mat-select>
+        </div>
+        <div class="common-field">
+          <h6>{{ "setting.header.payment_type" | translate }}</h6>
+          <mat-select formControlName="payment_type" placeholder="-- Select --">
+            <mat-option
+              *ngFor="let item of payment_type_datas"
+              [value]="item.title"
+            >
+              {{ item.title }}
+            </mat-option>
+          </mat-select>
+        </div>
+        <div class="common-field">
+          <div class="field-full-width">
+            <h5>{{ "setting.header.payment_remark" | translate }}</h5>
+            <textarea
+              formControlName="payment_remark"
+              #payment_remark
+              name=""
+              id=""
+            ></textarea>
+          </div>
+        </div>
+      </form>
+      <button
+        class="cancel"
+        type="button"
+        (click)="decline()"
+        mat-raised-button
+        color="secondary"
+      >
+        {{ "button.close" | translate }}
+      </button>
+      <button
+        class="confirm"
+        id="submit"
+        type="submit"
+        (click)="onSaveData()"
+        [disabled]="dataForm.invalid"
+        mat-raised-button
+        color="primary"
+      >
+        {{ "button.save" | translate }}
+      </button>
+      <div class="spiner-box" [style.display]="dlgloading ? 'block' : 'none'">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="dlgerror" class="alert alert-danger">
+        {{ "api." + dlgerror | translate }}
+      </div>
+      <div *ngIf="dlgmsgok" class="alert alert-success">
+        {{ "api." + dlgmsgok | translate }}
+      </div>
+    </div>
+  </div>
+</ng-template>
